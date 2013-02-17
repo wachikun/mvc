@@ -1,0 +1,849 @@
+#!/usr/bin/perl -w
+#
+# mvc -- M(eta|ulti|enu) Version Control
+# 
+# Copyright (C) 2012 Tadashi Watanabe <wac@umiushi.org>
+# 
+# Author: Tadashi Watanabe <wac@umiushi.org>
+# Maintainer: Tadashi Watanabe <wac@umiushi.org>
+# Version: 
+# Keywords: tools
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of
+# the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.  See the GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public
+# License along with this program; if not, write to the Free
+# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA 02111-1307 USA
+# 
+#  Commentary
+# 
+# http://umiushi.org/~wac/mvc/
+# 
+#  TODO
+
+use strict;
+use warnings;
+use File::Find;
+use Getopt::Long;
+
+my $global_mvc_version = 'mvc version 0.1 test8';
+my $global_exitcode;
+my %global_options;
+GetOptions("program=s" => \$global_options{'program'},
+	   "disable-search-unknown" => \$global_options{'disable-search-unknown'},
+	   "disable-ignore-repository" => \$global_options{'disable-ignore-repository'},
+	   "get-ignore" => \$global_options{'get-ignore'},
+	   "keep-mvcautorevert-newfile" => \$global_options{'keep-mvcautorevert-newfile'},
+           "help" => \$global_options{'help'},
+           "verbose" => \$global_options{'verbose'},
+           "version" => \$global_options{'version'});
+die if $#ARGV < 0;
+
+my $debug_argv = '';
+foreach (@ARGV) {
+    $debug_argv .= "$_ ";
+}
+chop($debug_argv);
+
+sub debug_print {
+    # open(my $wfh, '>>', '/tmp/mvc.debug.log') or die;
+    # print $wfh @_;
+    # close($wfh);
+}
+
+debug_print(__LINE__ . ":DB:start " . localtime() . " ================\n");
+
+sub print_status_progress($) {
+    print "progress:$_[0]\n";
+}
+
+sub cut_string($$) {
+    my $string = $_[0];
+    my $length = $_[1];
+    if (length($string) < 10) {
+	$string = sprintf("%-$length" . 's', $string);
+    } else {
+	$string = substr($string, 0, $length);
+    }
+    $string;
+}
+
+sub is_repository($) {
+    my $filename = $_[0];
+    if ($filename =~ m!^.hg/! or $filename eq '.hg' or
+	$filename =~ m!^.git/! or $filename eq '.git' or
+	$filename =~ m!^.svn/! or $filename eq '.svn' or
+	$filename =~ m!^.bzr/! or $filename eq '.bzr') {
+	return !0;
+    }
+    0;
+}
+
+my @global_ls_file_list;
+sub wanted {
+    return if (!defined($global_options{'disable-ignore-repository'}) and
+	       ($File::Find::dir =~ m!/\.hg/! or $File::Find::dir =~ m!/\.hg$! or $File::Find::name =~ m!/\.hg$! or
+		$File::Find::dir =~ m!/\.git/! or $File::Find::dir =~ m!/\.git$! or $File::Find::name =~ m!/\.git$! or
+		$File::Find::dir =~ m!/\.svn/! or $File::Find::dir =~ m!/\.svn$! or $File::Find::name =~ m!/\.svn$! or
+		$File::Find::dir =~ m!/\.bzr/! or $File::Find::dir =~ m!/\.bzr$! or $File::Find::name =~ m!/\.bzr$! or
+		$File::Find::name eq '.'));
+    my $file = $File::Find::name;
+    $file = substr($File::Find::name, 2) if $File::Find::name ne '.';
+    push(@global_ls_file_list, $file);
+}
+
+sub ls_recursive() {
+    find(\&wanted, '.');
+    if ($#global_ls_file_list > -1) {
+	@global_ls_file_list = sort(@global_ls_file_list);
+    }
+    @global_ls_file_list;
+}
+
+sub get_core($@) {
+    my $program = shift @_;
+    open(my $pfh, '-|', $program, @_) or die;
+    my @result = split(/\n/, do { local $/; <$pfh>; });
+    close($pfh);
+    $global_exitcode = $? >> 8;
+    @result;
+}
+
+sub get_default($$@) {
+    my $program = shift @_;
+    my $program_command = shift @_;
+    get_core($program, $program_command, @_);
+}
+
+sub print_default($$@) {
+    my $program = shift @_;
+    open(my $pfh, '-|', $program, @_) or die;
+    while (<$pfh>) {
+	print;
+    }
+    close($pfh);
+}
+
+sub set_directory_information($$) {
+    my $rawstatus = shift @_;
+    my $aref = shift @_;
+    print_status_progress("set directory information");
+    my %directory_hash;
+    my $skip_flag = !0;
+    foreach (@$aref) {
+	if ($skip_flag) {
+	    $skip_flag = 0 if $_ eq 'HEADEREND';
+	    next;
+	}
+	m!^.{$rawstatus}.(.).(.).{3}(.+)!;
+	my $rawstatus = $1;
+	my $dirstatus = $2;
+	my $name = $3;
+	my $dir = './';
+	$dir = $1 if $name =~ m!^(.+/)!;
+	my $href = $directory_hash{$dir};
+	$href = {' ' => 0, 'M' => 0, 'A' => 0, 'D' => 0, '?' => 0, 'I' => 0, 'C' => 0, '!' => 0, '~' => 0} unless defined($href);
+	if ($rawstatus eq ' ') {
+	    ++$$href{$rawstatus} unless $dirstatus eq 'd';
+	} else {
+	    ++$$href{$rawstatus};
+	}
+	++$$href{'~'} if $rawstatus eq '?' and $name =~ /[~#]$/;
+	$directory_hash{$dir} = $href;
+    }
+    $skip_flag = !0;
+    foreach (@$aref) {
+	if ($skip_flag) {
+	    $skip_flag = 0 if $_ eq 'HEADEREND';
+	    next;
+	}
+	m!^.{$rawstatus}.(.).(.).{3}(.+)!;
+	my $rawstatus = $1;
+	my $dirstatus = $2;
+	if ($dirstatus eq 'd') {
+	    my $name = $3 . '/';
+	    my $href = $directory_hash{$name};
+	    $_ = $_ . "        // tracked:$$href{' '} M:$$href{'M'} A:$$href{'A'} D:$$href{'D'} ?:$$href{'?'} I:$$href{'I'} C:$$href{'C'} !:$$href{'!'} ~:$$href{'~'}";
+	}
+    }
+}
+
+sub get_hg_status($@) {
+    my $program = shift @_;
+    print_status_progress("get status");
+    my @status_option = ('--modified', '--added', '--removed', '--deleted', '--clean', '--unknown', '--copies');
+    push(@status_option, '--ignore') if defined($global_options{'get-ignore'});
+    my @status = get_core($program, 'status', @status_option, @_);
+    my @tmp;
+    print_status_progress("process A");
+    foreach my $line (@status) {
+	if ($line =~ /(.)\s+(.+)/) {
+	    my $mvcstatus = $1;
+	    my $filename = $2;
+	    next if $mvcstatus eq ' '; # rename 時にマークなしが出るのでスキップ
+	    $mvcstatus = ' ' if $mvcstatus eq 'C';
+	    $mvcstatus = 'D' if $mvcstatus eq 'R';
+	    next if !defined($global_options{'disable-ignore-repository'}) and is_repository($filename);
+	    push(@tmp, [$filename, " $mvcstatus     $filename"]);
+	} else {
+	    # print qq(DB:unknown line "$line"\n);
+	}
+    }
+    print_status_progress("sorting files");
+    my @result;
+    push(@result, "version:$global_mvc_version");
+    push(@result, 'rawstatus:0');
+    push(@result, 'HEADEREND');
+    push(@result, "   d   .");
+    my %dir_hash;
+    foreach (sort({$$a[0] cmp $$b[0]} @tmp)) {
+	my $tmp = $$_[1];
+	if ($tmp =~ m!^.{7}(.+/)[^/]+$!) {
+	    my $dir = $1;
+	    chop($dir);
+	    unless (defined($dir_hash{$dir})) {
+		$dir_hash{$dir} = !0;
+		push(@result, "   d   $dir");
+	    }
+	}
+	push(@result, $tmp);
+    }
+    set_directory_information(0, \@result);
+    print_status_progress("done");
+    @result;
+}
+
+sub get_git_status($@) {
+    my $program = shift @_;
+    print_status_progress("get cached");
+    # @cached は staged か管理下のファイルが含まれる。
+    my @cached = get_core($program, 'ls-files', '--cached', @_);
+    print_status_progress("get others");
+    # @others は全ての ? が含まれる。
+    my @others;
+    unless (defined($global_options{'disable-search-unknown'})) {
+	@others = get_core($program, 'ls-files', '--others', @_);
+    }
+    # @status は変更ありが含まれる。
+    print_status_progress("get status");
+    my @status = get_core($program, 'status', '--short', '--untracked-files=no', @_);
+
+    print_status_progress("process A");
+    my @staged;
+    my @working;
+    my %working_filename_hash;
+    foreach my $line (@status) {
+	next if $line =~ /^\?/;
+	if ($line =~ /^((.)(.))\s+(.+)/) {
+	    my $rawstatus = $1;
+	    my $staged_status = $2;
+	    my $working_status = $3;
+	    my $filename = $4;
+	    # print qq(DB:rawstatus="$rawstatus"\n);
+	    if ($staged_status ne ' ') {
+		my $mvcstatus = $staged_status;
+		push(@staged, [$filename, sprintf("%-8s %s   s:%s", $rawstatus, $mvcstatus, $filename)]);
+	    } else {
+		my $mvcstatus = $working_status;
+		$working_filename_hash{$filename} = !0;
+		push(@working, [$filename, sprintf("%-8s %s     %s", $rawstatus, $mvcstatus, $filename)]);
+	    }
+	}
+    }
+    print_status_progress("process B");
+    foreach my $filename (@cached) {
+	if (!defined($working_filename_hash{$filename})) {
+	    push(@working, [$filename, "               $filename"]);
+	}
+    }
+    print_status_progress("process C");
+    foreach my $filename (@others) {
+	if (!defined($working_filename_hash{$filename})) {
+	    next if !defined($global_options{'disable-ignore-repository'}) and is_repository($filename);
+	    push(@working, [$filename, "?        ?     $filename"]);
+	}
+    }
+
+    print_status_progress("sorting staged files");
+    my @result;
+    push(@result, "version:$global_mvc_version");
+    push(@result, 'rawstatus:8');
+    push(@result, 'HEADEREND');
+    # push(@result, '// staged');
+    foreach (sort({$$a[0] cmp $$b[0]} @staged)) {
+	push(@result, $$_[1]);
+    }
+
+    print_status_progress("sorting working files");
+    # push(@result, '// working');
+    push(@result, "           d   .");
+    my %dir_hash;
+    foreach (sort({$$a[0] cmp $$b[0]} @working)) {
+	my $tmp = $$_[1];
+	if ($tmp =~ m!^.{15}(.+/)[^/]+$!) {
+	    my $dir = $1;
+	    chop($dir);
+	    unless (defined($dir_hash{$dir})) {
+		$dir_hash{$dir} = !0;
+		push(@result, "           d   $dir");
+	    }
+	}
+	push(@result, $tmp);
+    }
+    set_directory_information(8, \@result);
+    print_status_progress("done");
+    @result;
+}
+
+sub get_svn_status($@) {
+    my $program = shift @_;
+    print_status_progress("get status");
+    my @status_option = ('--verbose', '--xml');
+    push(@status_option, '--no-ignore') if defined($global_options{'get-ignore'});
+    my @status_xml = get_core($program, 'status', @status_option, @_);
+    my @ls;
+    unless (defined($global_options{'disable-search-unknown'})) {
+	# unknown が取れないので、全ファイル ls で取得
+	print_status_progress("get ls");
+	@ls = ls_recursive();
+    }
+    print_status_progress("process A");
+    my @tmp;
+    my $state = '';
+    my $filename;
+    my $props;
+    my %filename_hash;
+    foreach my $line (@status_xml) {
+	if ($state eq '<entry') {
+	    if ($line =~ /\s+path="(.+)/) {
+		$filename = $1;
+		$filename =~ s/[">]{1,2}$//;
+	    }
+	} elsif ($state eq '<wc-status') {
+	    if ($line =~ /\s+props="(.+)/) {
+		$props = $1;
+		$props =~ s/[">]{1,2}$//;
+	    } elsif ($line =~ /\s+item="(.+)/) {
+		my $item = $1;
+		$item =~ s/[">]{1,2}$//;
+		my $mvcstatus;
+		if ($item eq 'unversioned') {
+		    $mvcstatus = '?';
+		} elsif ($item eq 'normal') {
+		    $mvcstatus = ' ';
+		} elsif ($item eq 'added') {
+		    $mvcstatus = 'A';
+		} elsif ($item eq 'modified') {
+		    $mvcstatus = 'M';
+		} elsif ($item eq 'deleted') {
+		    $mvcstatus = 'D';
+		} elsif ($item eq 'missing') {
+		    $mvcstatus = '!';
+		}
+		my $rawstatus = $mvcstatus;
+		if ($props eq 'modified') {
+		    if ($mvcstatus eq ' ') {
+			$mvcstatus = 'M';
+		    }
+		    $rawstatus .= 'M';
+		} else {
+		    $rawstatus .= ' ';
+		}
+		next if !defined($global_options{'disable-ignore-repository'}) and is_repository($filename);
+		# print qq(DB:"$rawstatus" $mvcstatus $filename\n);
+		$filename_hash{$filename} = !0;
+		push(@tmp, [$filename, "$rawstatus       $mvcstatus     $filename"]);
+	    }
+	}
+	if ($line eq '<entry' or
+	    $line eq '<wc-status') {
+	    $state = $line;
+	}
+    }
+    print_status_progress("process B");
+    foreach my $filename (@ls) {
+	if (!defined($filename_hash{$filename})) {
+	    push(@tmp, [$filename, sprintf("?        ?     %s", $filename)]);
+	}
+    }
+    print_status_progress("sorting files");
+    my @result;
+    push(@result, "version:$global_mvc_version");
+    push(@result, 'rawstatus:8');
+    push(@result, 'HEADEREND');
+    my %dir_hash;
+    foreach (sort({$$a[0] cmp $$b[0]} @tmp)) {
+	my $tmp = $$_[1];
+	if ($$_[0] eq '.') {
+	    $tmp =~ s/(.{11}).(.+)/$1 . 'd' . $2/e;
+	} elsif ($tmp =~ m!^.{15}(.+/)[^/]+$!) {
+	    my $dir = $1;
+	    unless (defined($dir_hash{$dir})) {
+		$dir_hash{$dir} = !0;
+		my $choped_dir = $dir;
+		chop($choped_dir);
+		for (my $i = $#result; $i >= 0; --$i) {
+		    if ($result[$i] =~ /$choped_dir$/) {
+			$result[$i] =~ s/(.{11}).(.+)/$1 . 'd' . $2/e;
+			last;
+		    }
+		}
+	    }
+	}
+	push(@result, $tmp);
+    }
+    set_directory_information(8, \@result);
+    print_status_progress("done");
+    @result;
+}
+
+sub get_bzr_status($@) {
+    my $program = shift @_;
+    print_status_progress("get status");
+    my @status = get_core($program, 'status', '--short', '--versioned', @_);
+    print_status_progress("get inventory");
+    my @inventory = get_core($program, 'inventory', @_);
+    my @ls;
+    unless (defined($global_options{'disable-search-unknown'})) {
+	# unknown が取れないので、全ファイル ls で取得
+	print_status_progress("get ls");
+	@ls = ls_recursive();
+    }
+
+    my @result;
+    push(@result, "version:$global_mvc_version");
+    push(@result, 'rawstatus:8');
+    push(@result, 'HEADEREND');
+    push(@result, "           d   .");
+    {
+	print_status_progress("process A");
+	my @tmp;
+	my %filename_hash;
+	foreach my $line (@status) {
+	    if ($line =~ /^(.(.))\s+(.+)/) {
+		my $rawstatus = $1;
+		my $mvcstatus = $2;
+		my $filename = $3;
+		$mvcstatus =~ s/\s//g;
+		$mvcstatus = cut_string($mvcstatus, 1);
+		$filename_hash{$filename} = !0;
+		push(@tmp, [$filename, sprintf("%-8s %s     %s", $rawstatus, $mvcstatus, $filename)]);
+	    }
+	}
+	foreach my $filename (@inventory) {
+	    if (!defined($filename_hash{$filename})) {
+		$filename_hash{$filename} = !0;
+		push(@tmp, [$filename, sprintf("               %s", $filename)]);
+	    }
+	}
+	foreach my $filename (@ls) {
+	    if (!defined($filename_hash{$filename})) {
+		push(@tmp, [$filename, sprintf("?        ?     %s", $filename)]);
+	    }
+	}
+	print_status_progress("sorting files");
+	my %dir_hash;
+	foreach (sort({$$a[0] cmp $$b[0]} @tmp)) {
+	    my $tmp = $$_[1];
+	    if ($tmp =~ m!^.{15}(.+/)[^/]+$!) {
+		my $dir = $1;
+		unless (defined($dir_hash{$dir})) {
+		    $dir_hash{$dir} = !0;
+		    my $choped_dir = $dir;
+		    chop($choped_dir);
+		    for (my $i = $#result; $i >= 0; --$i) {
+			if ($result[$i] =~ /$choped_dir$/) {
+			    $result[$i] =~ s/(.{11}).(.+)/$1 . 'd' . $2/e;
+			    last;
+			}
+		    }
+		}
+	    }
+	    push(@result, $tmp);
+	}
+    }
+    set_directory_information(8, \@result);
+    print_status_progress("done");
+    @result;
+}
+
+my $program = shift(@ARGV);
+my $program_command = shift(@ARGV);
+my $program_identifier;
+if (defined($global_options{'program'})) {
+    $program_identifier = $global_options{'program'};
+} elsif ($program =~ /hg/i) {
+    $program_identifier = 'hg';
+} elsif ($program =~ /git/i) {
+    $program_identifier = 'git';
+} elsif ($program =~ /svn/i) {
+    $program_identifier = 'svn';
+} elsif ($program =~ /bzr/i) {
+    $program_identifier = 'bzr';
+}
+die unless defined($program);
+die unless defined($program_identifier);
+
+debug_print(__LINE__ . ":DB:program_command=$program_command\n");
+debug_print(__LINE__ . ":DB:program_identifier=$program_identifier\n");
+
+my @data;
+if ($program_identifier eq 'hg') {
+    if ($program_command eq 'status') {
+	@data = get_hg_status($program, @ARGV);
+    } elsif ($program_command eq 'mvcbranch') {
+	print_default($program, 'branch');
+    } else {
+	if ($program_command eq 'cat' or
+	    $program_command eq 'diff') {
+	    foreach (@ARGV) {
+		if (/--revision=([0-9a-f]+)/) {
+		    $_ = "--rev=$1";
+		}
+	    }
+	}
+	print_default($program, $program_command, @ARGV);
+    }
+} elsif ($program_identifier eq 'git') {
+    debug_print(__LINE__ . ":DB:program_command=$program_command\n");
+    if ($program_command eq 'status') {
+	@data = get_git_status($program, @ARGV);
+    } elsif ($program_command eq 'mvcbranch') {
+	foreach (get_default($program, 'branch')) {
+	    if (/^\*\s+(.+)/) {
+		push(@data, $1);
+		last;
+	    }
+	}
+    } elsif ($program_command eq 'mvcautorevert') {
+	# まず全体の status を取る。
+	# deleted の場合に new/old の両方指定が必要で、 @ARGV を指定すると取りきれないことがあるため。
+	my @all_status = get_git_status($program, '.');
+	my @add_list;
+	my @rm_list;
+	my @mv_new_list;
+	my @mv_old_list;
+	my @modified_list;
+	my $header_flag = !0;
+	my $rawstatus;
+	foreach (@all_status) {
+	    if (defined($header_flag)) {
+		$rawstatus = $1 if /^rawstatus:(\d+)/;
+		if (/^HEADEREND$/) {
+		    undef($header_flag);
+		}
+		next;
+	    }
+	    my $filename = substr($_, $rawstatus + 5 + 2);
+	    next if $filename eq '.';
+	    if (/^A/ and grep($_ eq $filename, @ARGV)) {
+		push(@add_list, $filename);
+	    }
+	    if (/^D/ and grep($_ eq $filename, @ARGV)) {
+		push(@rm_list, $filename);
+	    }
+	    if (/^R/ and grep($_ eq $filename, @ARGV)) {
+		my ($old_filename, $new_filename) = split(/ -> /, $filename);
+		push(@mv_new_list, $new_filename);
+		push(@mv_old_list, $old_filename);
+	    }
+	    if (/^\s*M/ and grep($_ eq $filename, @ARGV)) {
+		push(@modified_list, $filename);
+	    }
+	}
+	get_default($program, 'reset', 'HEAD', @add_list);
+	get_default($program, 'checkout', 'HEAD', @rm_list);
+	get_default($program, 'reset', 'HEAD', @mv_new_list, @mv_old_list);
+	get_default($program, 'checkout', @mv_old_list, @modified_list);
+	if (defined($global_options{'keep-mvcautorevert-newfile'})) {
+	    foreach (@mv_new_list) {
+		my $tmp = "$_." . time() . '.bak';
+		unless (-f $tmp) {
+		    rename($_, $tmp);
+		}
+	    }
+	} else {
+	    unlink(@mv_new_list);
+	}
+    } else {
+	if ($program_command eq 'commit') {
+	    foreach (@ARGV) {
+		if (/--logfile=(.+)/) {
+		    $_ = "--file=$1";
+		}
+	    }
+	}
+	if ($program_command eq 'log') {
+	    foreach (@ARGV) {
+		if (/--limit=(\d+)/) {
+		    $_ = "-$1";
+		}
+	    }
+	}
+	if ($program_command eq 'cat') {
+	    if (grep(/^--revision/, @ARGV)) {
+		my $revision = shift(@ARGV);
+		$revision =~ s/^--revision=//;
+		foreach (@ARGV) {
+		    $_ = "$revision:$_";
+		}
+	    } else {
+		foreach (@ARGV) {
+		    $_ = "HEAD:$_";
+		}
+	    }
+	}
+	my %command_hash = ('remove' => 'rm',
+			    'rename' => 'mv',
+			    'cat' => 'show');
+	$program_command = $command_hash{$program_command} if defined($command_hash{$program_command});
+	print_default($program, $program_command, @ARGV);
+    }
+} elsif ($program_identifier eq 'svn') {
+    if ($program_command eq 'status') {
+	@data = get_svn_status($program, @ARGV);
+    } elsif ($program_command eq 'mvcbranch') {
+	foreach (get_default($program, 'info')) {
+	    if (/^Repository Root:\s+(.+)/) {
+		push(@data, $1);
+		last;
+	    }
+	}
+    } else {
+	if ($program_command eq 'commit') {
+	    foreach (@ARGV) {
+		if (/--logfile=(.+)/) {
+		    $_ = "--file=$1";
+		}
+	    }
+	}
+	print_default($program, $program_command, @ARGV);
+    }
+} elsif ($program_identifier eq 'bzr') {
+    if ($program_command eq 'status') {
+	@data = get_bzr_status($program, @ARGV);
+    } elsif ($program_command eq 'mvcbranch') {
+	foreach (get_default($program, 'info')) {
+	    if (/^\s+parent branch:\s+(.+)/) {
+		push(@data, $1);
+		last;
+	    }
+	}
+    } else {
+	if ($program_command eq 'commit') {
+	    foreach (@ARGV) {
+		if (/--logfile=(.+)/) {
+		    $_ = "--file=$1";
+		}
+	    }
+	}
+	print_default($program, $program_command, @ARGV);
+    }
+} else {
+    die qq(unknown identifier "$program_identifier");
+}
+
+if ($program_command eq 'status') {
+    my $pwd = `pwd`;
+    chomp($pwd);
+    print "debug pwd:$pwd\n";
+    print "debug argv:$debug_argv\n";
+    print "exitcode:$global_exitcode\n";
+}
+
+foreach (@data) {
+    print "$_\n";
+}
+
+debug_print(__LINE__ . ":DB:done ================\n\n");
+
+__END__
+
+=head1 NAME
+
+mvc - (Meta|Multi|Menu)VCS wrapper
+
+
+=head1 SYNOPSIS
+
+mvc [mvc options] program command [program arguments]
+
+
+=head1 DESCRIPTION
+
+hg/git/svn/bzr の入出力を統一します。
+
+mvc 内部でオプションと出力を変換し、オプションや、出力を統一して扱える
+ようにします。
+
+mvc が認識しないオプションはそのままプログラムに渡されます。
+
+起動するコマンド名を指定します。ここで指定した program がサブプロセスと
+して起動されます。
+
+
+=head2 program
+
+program に以下の文字列を含む場合、そのプロラグムを mvc が自動的に認識し
+ます。
+
+=item hg
+=item git
+=item svn
+=item bzr
+=item svn
+
+滅多にないと思いますが、 program に文字列を含まない場合は
+--program オプションで mvc の内部認識用文字列を指定することができます。
+
+
+=head2 command
+
+認識するコマンドとオプションは以下の通りです。
+
+=head3 mvcautorevert
+
+git 用 revert の簡易インターフェースです。
+
+add/rm/mv されたファイルを元に戻します。
+
+mv されたファイルを mvcautorevert するには git status の出力であ
+る'oldfile -> newfile' を引数に指定する必要があります。
+
+=head3 status
+
+出力は整形されます。
+
+=head3 * annotate/blame
+
+=head3 * commit
+
+=item --log=filename
+
+=head3 * remove
+
+git で rm に変換。
+
+=head3 * rename
+
+git で mv に変換。
+
+=head3 * update
+
+=head3 * log
+
+出力は整形されます。
+
+=item --limit=limit
+
+git で --limit=N は -N に変換。
+
+=head3 * push/pull
+
+
+=head2 mvc options
+
+=head3 --program
+
+hg, git, svn, bzr または svn を指定できます。通常は program 引数に含ま
+れる文字列から自動で判別するため、指定する必要はありません。
+
+=head3 --disable-search-unknown
+
+デフォルトでは外部コマンドを用い unknown なファイルを積極的に取得します。
+unknown なファイルを取得しておくと add する場合などに便利なためです。
+
+このオプションを使うと、多少プログラムの起動が高速化される場合がありま
+す。
+
+hg では hg コマンドが常に取得するため、このオプションは有効になりません。
+
+
+=head3 --disable-ignore-repository
+
+あまり使う必要のない option です。
+
+.hg や .git などのリポジトリディレクトリを無視しません。
+
+但し、これを指定しても(バックエンドがそもそも取得しないこともあるため)
+リポジトリの内容を完全に取得できるわけではないことに注意が必要です。
+
+
+=head3 --get-ignore
+
+デフォルトでは高速化のために ignore なファイルを出力しませんが、このオ
+プションを付けると、できるだけ出力するよう努力します。
+
+プログラムによっては、このオプションを付けても出力しない場合もあります。
+
+
+=head2 OUTPUT FORMAT
+
+出力フォーマットは header と body からなります。
+
+=head3 header
+
+=item version:バージョン文字列
+
+=item progress:進捗表示用文字列
+
+=item rawstatus:可変長サイズ(直後のスペースは含まない)
+
+=item total:全ファイル数(git は working)
+
+=item ignored:ignored 数
+
+=item unknown:unknown 数
+
+=item backup:backup 数
+
+=item staged-total:staged 全ファイル数
+
+=item HEADEREND ヘッダ終了
+
+=head3 body
+
+body の行は以下のような構造になっています。
+
+rawstatus(可変長) mvcstatus(1 文字) mvctype(1 文字) filename[        // directory information]
+
+0123456789 [ MAD?IC] [d ] 000.txt( {8}// directory information)?
+
+=item // から始まる行はコメント行
+
+=head4 rawstatus
+
+VCS が出力する、ほぼそのままのフォーマットのステータスです。
+hg のように header で rawstatus:0 を指定された場合は出力しません。
+
+=head4 mvcstatus
+
+mvc が認識するステータスです。
+
+=head4 mvctype
+
+ディレクトリならば d が出力されます。
+
+=head4 filename
+
+ファイル名です。先頭二文字に、以下のような文字が入ります。
+
+=item 's:' git の staged の場合
+
+=item '  ' git の staged 以外の場合
+
+=head4 directory information
+
+ディレクトリの場合、ディレクトリ情報が格納されます。
+スペース 8 文字と // から開始する文字列です。
+
+=cut
