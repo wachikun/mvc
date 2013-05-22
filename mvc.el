@@ -1,6 +1,6 @@
 ;;; mvc.el -- M(eta|ulti|enu) Version Control Interface
 
-;; Copyright (C) 2007-2012 Tadashi Watanabe <wac@umiushi.org>
+;; Copyright (C) 2007-2013 Tadashi Watanabe <wac@umiushi.org>
 
 ;; Author: Tadashi Watanabe <wac@umiushi.org>
 ;; Maintainer: Tadashi Watanabe <wac@umiushi.org>
@@ -28,7 +28,7 @@
 
 ;;; Code:
 
-(defvar mvc-version-string "mvc version 0.1 test8")
+(defvar mvc-version-string "mvc version 0.1 test9")
 
 (defun mvc-version ()
   (interactive)
@@ -690,76 +690,6 @@
 (define-key mvc-especial-commit-mode-map "\C-c\C-c" 'mvc-especial-commit-mode-done)
 
 
-
-
-;; buffer local variable
-
-;; (defvar mvc-l-process-status-buffer nil)
-;; (defvar mvc-l-process-callback nil)
-;; (defvar mvc-l-process-done-message nil)
-;; (defvar mvc-l-process-kill-buffer-p nil)
-;; (defvar mvc-l-status-program nil)
-;; (defvar mvc-l-status-program-name nil)
-;; (defvar mvc-l-status-mvc-program-name nil)
-;; (defvar mvc-l-status-buffer-name-list nil)
-;; (defvar mvc-l-status-timer nil)
-;; (defvar mvc-l-status-timer-counter nil)
-;; (defvar mvc-l-status-timer-last-mode-line-string nil)
-;; (defvar mvc-l-status-timer-last-point nil)
-;; (defvar mvc-l-status-first-point-set-p nil)
-;; (defvar mvc-l-status-ready-p nil)
-;; (defvar mvc-l-status-process-process nil)
-;; (defvar mvc-l-status-process-last-command nil)
-;; (defvar mvc-l-status-process-parameter nil)
-;; (defvar mvc-l-status-last-execute-time-status nil)
-;; (defvar mvc-l-status-last-execute-time-update nil)
-;; (defvar mvc-l-status-last-execute-time-commit nil)
-;; (defvar mvc-l-status-last-execute-time-push nil)
-;; (defvar mvc-l-status-last-execute-time-pull nil)
-;; (defvar mvc-l-status-mvcstatus-header-rawstatus nil)
-;; (defvar mvc-l-status-save-load-point nil)
-;; (defvar mvc-l-status-save-load-file-name nil)
-;; (defvar mvc-l-status-save-load-window-point-hash nil)
-;; (defvar mvc-l-status-save-load-window-file-name-hash nil)
-;; (defvar mvc-l-status-save-load-window-extension-hash nil)
-;; (defvar mvc-l-status-save-load-file-list-end-point nil)
-;; (defvar mvc-l-status-save-load-buffer-list nil)
-;; (defvar mvc-l-status-files nil)
-;; (defvar mvc-l-status-display-unknown-p nil)
-;; (defvar mvc-l-status-display-unknown-masks nil)
-;; (defvar mvc-l-status-display-unmodified-p nil)
-;; (defvar mvc-l-status-display-unmodified-masks nil)
-;; (defvar mvc-l-status-display-backup-p nil)
-;; (defvar mvc-l-status-display-backup-masks nil)
-;; (defvar mvc-l-status-display-ignore-p nil)
-;; (defvar mvc-l-status-display-ignore-masks nil)
-;; (defvar mvc-l-status-recursive-p nil)
-;; (defvar mvc-l-status-file-list-begin-point nil)
-;; (defvar mvc-l-status-file-list-end-point nil)
-;; (defvar mvc-l-status-marks nil)
-;; (defvar mvc-l-status-mark-hash nil)
-;; (defvar mvc-l-status-code-hash nil)
-;; (defvar mvc-l-status-type-hash nil)
-;; (defvar mvc-l-status-information-hash nil)
-;; (defvar mvc-l-status-point-hash nil)
-;; (defvar mvc-l-status-after-save-hook-hash nil)
-;; (defvar mvc-l-status-last-point nil)
-;; (defvar mvc-l-status-last-window-configuration nil)
-;; (defvar mvc-l-status-branch-name nil)
-;; (defvar mvc-l-commitlog-mode-buffer-name-status nil)
-;; (defvar mvc-l-log-mode-buffer-name-status nil)
-;; (defvar mvc-l-especial-mode-buffer-name-status nil)
-;; (defvar mvc-l-especial-mode-prop-recursive-p nil)
-;; (defvar mvc-l-especial-commit-mode-buffer-name-status nil)
-;; (defvar mvc-l-especial-commit-mode-property nil)
-;; (defvar mvc-l-especial-commit-mode-path-list nil)
-;; (defvar mvc-l-especial-commit-mode-start-point nil)
-;; (defvar mvc-l-especial-commit-mode-start-column nil)
-;; (defvar mvc-l-especial-commit-mode-prop-recursive-p nil)
-
-
-
-
 ;;; mvc utilities
 
 (defun mvc-search-control-directory (program)
@@ -937,6 +867,13 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (setq result (append option-list (list result)))))
 
 (defun mvc-status-get-current-program-option-list-diff (option-list prefix-argument)
+  (cond ((and (>= mvc-l-status-file-name-list-git-stage-count 1)
+	      (>= mvc-l-status-file-name-list-working-directory-count 1))
+	 (message "warning: run diff working directory (mark stage and working directory)"))
+	((>= mvc-l-status-file-name-list-git-stage-count 1)
+	 (setcdr option-list (cons "HEAD" (cdr option-list))))
+	((>= mvc-l-status-file-name-list-working-directory-count 1)
+	 ))
   (if prefix-argument
       ;; FIXME!
       ;; $B$=$N$&$A$3$3$GE,@Z$J%R%9%H%j$r:n$C$F$d$k(B
@@ -969,6 +906,20 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	 (message "UNKNOWN PROGRAM!")
 	 nil)))
 
+(defun mvc-status-get-current-program-option-list-revert (option-list)
+  (cond ((>= mvc-l-status-file-name-list-git-rename-count 1)
+	 (when (not (= mvc-l-status-file-name-list-git-rename-count mvc-l-status-file-name-list-git-stage-count))
+	   (error "%s" "error: revert rename failed (You can mark only renamed files)"))
+	 (setq option-list (list "mvcautorevert")))
+	((and (>= mvc-l-status-file-name-list-git-stage-count 1)
+	      (>= mvc-l-status-file-name-list-working-directory-count 1))
+	 (message "warning: run revert working directory (mark stage and working directory)"))
+	((>= mvc-l-status-file-name-list-git-stage-count 1)
+	 (setq option-list (list "reset" "HEAD" "--")))
+	((>= mvc-l-status-file-name-list-working-directory-count 1)
+	 (setq option-list (list "checkout" "HEAD" "--"))))
+  option-list)
+
 (defun mvc-status-get-current-program-option-list (command &optional argument)
   "command $B$H(B argument $B$K=>$$(B command option-list.. $B$rJV$7$^$9!#(B
 
@@ -987,6 +938,8 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	   (mvc-status-get-current-program-option-list-commit option-list argument))
 	  ((eq command 'status)
 	   (mvc-status-get-current-program-option-list-status option-list))
+	  ((eq command 'revert)
+	   (mvc-status-get-current-program-option-list-revert option-list))
 	  (t
 	   option-list))))
 
@@ -1467,30 +1420,31 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
 ;;; mvc-command
 
-(defun mvc-command-get-current-or-mark-file-name-list-with-prefix (current-only-p)
-  (let (file-name-list)
-    (if (or (= mvc-l-status-marks 0)
-	    current-only-p)
-	(progn
-	  (setq file-name-list (mvc-status-get-current-line-file-name-with-prefix))
-	  (when file-name-list
-	    (setq file-name-list (list file-name-list))))
-      (maphash #'(lambda (key value)
-		   (when (string= value "*")
-		     (setq file-name-list (append file-name-list (list key)))))
-	       mvc-l-status-mark-hash))
-    file-name-list))
-
 (defun mvc-command-get-current-or-mark-file-name-list (current-only-p)
   (let (file-name-list)
+    (setq mvc-l-status-file-name-list-git-stage-count 0)
+    (setq mvc-l-status-file-name-list-git-rename-count 0)
+    (setq mvc-l-status-file-name-list-working-directory-count 0)
     (if (or (= mvc-l-status-marks 0)
 	    current-only-p)
 	(progn
 	  (setq file-name-list (mvc-status-get-current-line-file-name))
+	  (let ((file-name-with-prefix (mvc-status-get-current-line-file-name-with-prefix)))
+	    (if (string= (substring file-name-with-prefix 0 2) "s:")
+		(progn
+		  (when (string= (gethash file-name-with-prefix mvc-l-status-code-hash) "R")
+		    (setq mvc-l-status-file-name-list-git-rename-count 1))
+		  (setq mvc-l-status-file-name-list-git-stage-count 1))
+	      (setq mvc-l-status-file-name-list-working-directory-count 1)))
 	  (when file-name-list
 	    (setq file-name-list (list file-name-list))))
       (maphash #'(lambda (key value)
+		   (when (string= (gethash key mvc-l-status-code-hash) "R")
+		     (setq mvc-l-status-file-name-list-git-rename-count (1+ mvc-l-status-file-name-list-git-rename-count)))
 		   (when (string= value "*")
+		     (if (string= (substring key 0 2) "s:")
+			 (setq mvc-l-status-file-name-list-git-stage-count (1+ mvc-l-status-file-name-list-git-stage-count))
+		       (setq mvc-l-status-file-name-list-working-directory-count (1+ mvc-l-status-file-name-list-working-directory-count)))
 		     (setq file-name-list (append file-name-list (list (substring key 2))))))
 	       mvc-l-status-mark-hash))
     file-name-list))
@@ -1598,13 +1552,10 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
       (progn
 	(message mvc-message-process-already-running)
 	nil)
-    (let* ((command-list (mvc-status-get-current-program-option-list command-key option-argument))
+    (let* ((file-name-list (mvc-command-get-current-or-mark-file-name-list current-only-p))
+	   (command-list (mvc-status-get-current-program-option-list command-key option-argument))
 	   (command-name (nth 0 command-list))
-	   (file-name-list (mvc-command-get-current-or-mark-file-name-list current-only-p))
 	   (process-buffer-name (cdr (assq command-key mvc-l-status-buffer-name-list))))
-      (when (and (eq mvc-l-status-program 'git)
-		 (eq command-key 'revert))
-	(setq command-list (append (list "mvcautorevert") (cdr command-list))))
       (if file-name-list
 	  (progn
 	    (let ((flag t)
@@ -2157,7 +2108,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (mvc-async-push-pull-core status-buffer 'pull command-list path "from")))
 
 (defun mvc-async-pull-git ()
-  (let ((command-list (list "pull"))
+  (let ((command-list (list "fetch"))
 	(path "?")
 	(program-name mvc-l-status-program-name)
 	(status-buffer (current-buffer))
@@ -2285,6 +2236,9 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (set (make-local-variable 'mvc-l-status-after-save-hook-hash) (make-hash-table :test 'equal))
     (set (make-local-variable 'mvc-l-status-last-window-configuration) nil)
     (set (make-local-variable 'mvc-l-status-branch-name) (mvc-status-mode-get-branch-name))
+    (set (make-local-variable 'mvc-l-status-file-name-list-git-stage-count) 0)
+    (set (make-local-variable 'mvc-l-status-file-name-list-git-rename-count) 0)
+    (set (make-local-variable 'mvc-l-status-file-name-list-working-directory-count) 0)
 
     (add-hook 'kill-buffer-hook 'mvc-status-kill-buffer-hook))
 

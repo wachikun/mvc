@@ -7,7 +7,7 @@ all			:
 
 MKDIR			= mkdir
 RM			= rm
-PROJECT_VERSION		= 0.1-test8
+PROJECT_VERSION		= 0.1-test9
 
 package			:
 	$(MKDIR) -p var/package &&\

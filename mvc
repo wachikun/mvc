@@ -2,7 +2,7 @@
 #
 # mvc -- M(eta|ulti|enu) Version Control
 # 
-# Copyright (C) 2012 Tadashi Watanabe <wac@umiushi.org>
+# Copyright (C) 2013 Tadashi Watanabe <wac@umiushi.org>
 # 
 # Author: Tadashi Watanabe <wac@umiushi.org>
 # Maintainer: Tadashi Watanabe <wac@umiushi.org>
@@ -35,7 +35,7 @@ use warnings;
 use File::Find;
 use Getopt::Long;
 
-my $global_mvc_version = 'mvc version 0.1 test8';
+my $global_mvc_version = 'mvc version 0.1 test9';
 my $global_exitcode;
 my %global_options;
 GetOptions("program=s" => \$global_options{'program'},
@@ -252,7 +252,8 @@ sub get_git_status($@) {
 	    if ($staged_status ne ' ') {
 		my $mvcstatus = $staged_status;
 		push(@staged, [$filename, sprintf("%-8s %s   s:%s", $rawstatus, $mvcstatus, $filename)]);
-	    } else {
+	    }
+	    if ($working_status ne ' ') {
 		my $mvcstatus = $working_status;
 		$working_filename_hash{$filename} = !0;
 		push(@working, [$filename, sprintf("%-8s %s     %s", $rawstatus, $mvcstatus, $filename)]);
