@@ -1,4 +1,4 @@
-;;; mvc.el -- M(eta|ulti|enu) Version Control Interface
+;; mvc.el -- M(eta|ulti|enu) Version Control Interface -*- coding: iso-2022-jp -*-
 
 ;; Copyright (C) 2007-2013 Tadashi Watanabe <wac@umiushi.org>
 
@@ -22,7 +22,7 @@
 ;; Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 ;; MA 02111-1307 USA
 
-;;; Commentary
+;;; Commentary:
 
 ;; http://umiushi.org/~wac/mvc/
 
