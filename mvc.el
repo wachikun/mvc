@@ -1,6 +1,6 @@
 ;; mvc.el -- M(eta|ulti|enu) Version Control Interface -*- coding: iso-2022-jp -*-
 
-;; Copyright (C) 2007-2013 Tadashi Watanabe <wac@umiushi.org>
+;; Copyright (C) 2007-2014 Tadashi Watanabe <wac@umiushi.org>
 
 ;; Author: Tadashi Watanabe <wac@umiushi.org>
 ;; Maintainer: Tadashi Watanabe <wac@umiushi.org>
@@ -28,7 +28,7 @@
 
 ;;; Code:
 
-(defvar mvc-version-string "mvc version 0.1 test9")
+(defvar mvc-version-string "mvc version 0.2")
 
 (defun mvc-version ()
   (interactive)
@@ -116,6 +116,25 @@
   :type '(list symbol symbol symbol symbol symbol)
   :group 'mvc-variables)
 
+(defcustom mvc-default-log-face-limit 20000
+  "mvc-default-log-face-limit"
+  :type '(integer)
+  :group 'mvc-variables)
+
+(defcustom mvc-default-diff-option-list '((mercurial . "--rev=")
+					  (git . "")
+					  (bazaar . "")
+					  (subversion . "")
+					  (cvs . ""))
+  "mvc-default-diff-option-list"
+  :type '(list (list
+		(cons (const mercurial) (repeat string))
+		(cons (const git) (repeat string))
+		(cons (const bazaar) (repeat string))
+		(cons (const subversion) (repeat string))
+		(cons (const cvs) (repeat string))))
+  :group 'mvc-variables)
+
 (defcustom mvc-default-option-list '((diff . ((mercurial . nil)
 					      (git . nil)
 					      (bazaar . nil)
@@ -160,7 +179,7 @@
 						(subversion . nil)
 						(cvs . nil)))
 				     (log . ((mercurial . ("--verbose"))
-					     (git . nil)
+					     (git . ("--stat"))
 					     (bazaar . ("--verbose"))
 					     (subversion . ("--verbose"))
 					     (cvs . nil))))
@@ -394,7 +413,7 @@
 	       (cons (const cvs) (repeat string)))
   :group 'mvc-variables)
 
-(defcustom mvc-default-command-history
+(defcustom mvc-default-cheat-sheet-history
   '((mercurial . ("%mvc branches"
 		  "%mvc glog --limit=10"
 		  "%mvc heads"
@@ -410,13 +429,22 @@
 		  "%program tag"
 		  "%program tag --rev="
 		  "echo %files"))
-    (git . ("%program reset HEAD %files"
-	    "%program --soft HEAD %files"
-	    "%program --hard HEAD %files"))
+    (git . ("%program branch"
+	    "%program branch -r"
+	    "%program stash list"
+	    "%program status"
+	    "%program checkout "
+	    "%program log --stat -n 8 "
+	    "%program show %files"
+	    "%program checkout %files"
+	    "%program commit --file=%commitlog"
+	    "%program commit -m 'merge'"
+	    "%program reset --soft "
+	    "%program reset --hard "))
     (bazaar . ("echo %program %files"))
     (subversion . ("echo %program %files"))
     (cvs . ("")))
-  "mvc-command $BMQ$N%R%9%H%j=i4|CM$G$9!#(B
+  "mvc-cheat-sheet $BMQ$N%R%9%H%j=i4|CM$G$9!#(B
 $B$h$/;H$&%3%^%s%I$r;XDj$7$F$*$/$HJXMx$G$9!#(B
 $B0J2<$NJ8;z$,FC<l$J0UL#$r;}$A$^$9!#(B
 
@@ -431,6 +459,16 @@
 	       (cons (const bazaar) (repeat string))
 	       (cons (const subversion) (repeat string))
 	       (cons (const cvs) (repeat string)))
+  :group 'mvc-variables)
+
+(defcustom mvc-default-cheat-sheet-directory "~/.emacs.d/"
+  "mvc-default-cheat-sheet-directory"
+  :type 'string
+  :group 'mvc-variables)
+
+(defcustom mvc-default-use-emacs-client t
+  "mvc-default-use-emacs-client"
+  :type 'boolean
   :group 'mvc-variables)
 
 
@@ -511,6 +549,16 @@
     (((type x w32 mac) (class color) (background dark)) (:foreground "white" :bold t)))
   "commit information"
   :group 'mvc-faces)
+(defface mvc-face-commit-git-commit-underline
+  '((((type x w32 mac) (class color) (background light)) (:foreground "black" :background "beige" :bold t :underline t))
+    (((type x w32 mac) (class color) (background dark)) (:foreground "black" :background "beige" :bold t :underline t)))
+  "commit information"
+  :group 'mvc-faces)
+(defface mvc-face-commit-git-commit
+  '((((type x w32 mac) (class color) (background light)) (:foreground "black" :background "beige" :bold t))
+    (((type x w32 mac) (class color) (background dark)) (:foreground "black" :background "beige" :bold t)))
+  "commit information"
+  :group 'mvc-faces)
 
 (defface mvc-face-animation-timer-0
   '((((type x w32 mac) (class color)) (:foreground "#000f0f" :background "lightgray" :bold t)))
@@ -557,6 +605,17 @@
   "especial path"
   :group 'mvc-faces)
 
+(defface mvc-face-branch-default
+  '((((type x w32 mac) (class color) (background light)) (:foreground "darkblue" :background "tan" :bold t))
+    (((type x w32 mac) (class color) (background dark)) (:foreground "blue" :background "tan" :bold t)))
+  "branch default"
+  :group 'mvc-faces)
+(defface mvc-face-branch-master
+  '((((type x w32 mac) (class color) (background light)) (:foreground "white" :background "red3" :bold t))
+    (((type x w32 mac) (class color) (background dark)) (:foreground "white" :background "red3" :bold t)))
+  "branch default"
+  :group 'mvc-faces)
+
 
 
 
@@ -586,6 +645,7 @@
 (defconst mvc-mode-name-log "mvc log")
 (defconst mvc-mode-name-especial "mvc especial")
 (defconst mvc-mode-name-especial-commit "mvc especial-commit")
+(defconst mvc-mode-name-cheat-sheet "mvc cheat-sheet")
 
 (defconst mvc-running-header-decoration-0 "**")
 (defconst mvc-running-header-decoration-1 "--")
@@ -650,7 +710,7 @@
 (define-key mvc-status-mode-map (kbd "C-=") 'mvc-status-mode-diff-current-or-mark)
 (define-key mvc-status-mode-map (kbd "M-C-=") 'mvc-status-mode-ediff-only-current)
 (define-key mvc-status-mode-map "S" 'mvc-status-mode-especial)
-(define-key mvc-status-mode-map "!" 'mvc-status-mode-command)
+(define-key mvc-status-mode-map "!" 'mvc-status-mode-cheat-sheet)
 
 
 ;;; mvc-commitlog-mode-map
@@ -668,6 +728,7 @@
 (define-key mvc-log-mode-map "p" 'mvc-log-mode-previous)
 (define-key mvc-log-mode-map " " 'scroll-up)
 (define-key mvc-log-mode-map "\C-m" 'mvc-log-mode-return)
+(define-key mvc-log-mode-map "=" 'mvc-log-mode-diff)
 (define-key mvc-log-mode-map "\M-\C-i" 'mvc-log-mode-status-mode-next-status)
 (define-key mvc-log-mode-map (kbd "M-C-S-i") 'mvc-log-mode-status-mode-previous-status)
 
@@ -688,6 +749,13 @@
 (defvar mvc-especial-commit-mode-map (make-sparse-keymap))
 
 (define-key mvc-especial-commit-mode-map "\C-c\C-c" 'mvc-especial-commit-mode-done)
+
+
+;;; mvc-cheat-sheet-mode-map
+
+(defvar mvc-cheat-sheet-mode-map (make-sparse-keymap))
+
+(define-key mvc-cheat-sheet-mode-map "\C-c\C-c" 'mvc-cheat-sheet-mode-done)
 
 
 ;;; mvc utilities
@@ -878,17 +946,27 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
       ;; FIXME!
       ;; $B$=$N$&$A$3$3$GE,@Z$J%R%9%H%j$r:n$C$F$d$k(B
       ;; mvc --get-revision-history $B$_$?$$$J$N$G$$$$$+$J(B?
-      (append option-list (list (concat "--revision="
-					(completing-read
-					 "--revision: "
-					 '("-3" "-2")
-					 nil
-					 nil
-					 ""))))
+      ;; (append option-list (list (concat "--revision="
+      ;; 					(completing-read
+      ;; 					 "--revision: "
+      ;; 					 '("-3" "-2")
+      ;; 					 nil
+      ;; 					 nil
+      ;; 					 ""))))
+      (append option-list (list (concat (completing-read
+      					 "revision: "
+      					 '("-3" "-2")
+      					 nil
+      					 nil
+					 (if mvc-l-status-diff-paramter
+					     mvc-l-status-diff-paramter
+					   (cdr (assq mvc-l-status-program mvc-default-diff-option-list)))))))
     option-list))
 
 (defun mvc-status-get-current-program-option-list-commit (option-list temporary-file-name)
-  (append option-list (list (concat "--logfile=" temporary-file-name))))
+  (if temporary-file-name
+      (append option-list (list (concat "--logfile=" temporary-file-name)))
+    option-list))
 
 (defun mvc-status-get-current-program-option-list-status (option-list)
   (cond ((eq mvc-l-status-program 'subversion)
@@ -907,17 +985,18 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	 nil)))
 
 (defun mvc-status-get-current-program-option-list-revert (option-list)
-  (cond ((>= mvc-l-status-file-name-list-git-rename-count 1)
-	 (when (not (= mvc-l-status-file-name-list-git-rename-count mvc-l-status-file-name-list-git-stage-count))
-	   (error "%s" "error: revert rename failed (You can mark only renamed files)"))
-	 (setq option-list (list "mvcautorevert")))
-	((and (>= mvc-l-status-file-name-list-git-stage-count 1)
-	      (>= mvc-l-status-file-name-list-working-directory-count 1))
-	 (message "warning: run revert working directory (mark stage and working directory)"))
-	((>= mvc-l-status-file-name-list-git-stage-count 1)
-	 (setq option-list (list "reset" "HEAD" "--")))
-	((>= mvc-l-status-file-name-list-working-directory-count 1)
-	 (setq option-list (list "checkout" "HEAD" "--"))))
+  (when (eq mvc-l-status-program 'git)
+    (cond ((>= mvc-l-status-file-name-list-git-rename-count 1)
+	   (when (not (= mvc-l-status-file-name-list-git-rename-count mvc-l-status-file-name-list-git-stage-count))
+	     (error "%s" "error: revert rename failed (You can mark only renamed files)"))
+	   (setq option-list (list "mvcautorevert")))
+	  ((and (>= mvc-l-status-file-name-list-git-stage-count 1)
+		(>= mvc-l-status-file-name-list-working-directory-count 1))
+	   (message "warning: run revert working directory (mark stage and working directory)"))
+	  ((>= mvc-l-status-file-name-list-git-stage-count 1)
+	   (setq option-list (list "reset" "HEAD" "--")))
+	  ((>= mvc-l-status-file-name-list-working-directory-count 1)
+	   (setq option-list (list "checkout" "HEAD" "--")))))
   option-list)
 
 (defun mvc-status-get-current-program-option-list (command &optional argument)
@@ -992,7 +1071,9 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 		  (when (and (boundp 'mvc-l-status-branch-name)
 			     mvc-l-status-branch-name)
 		    (let ((branch-name (concat " branch:" mvc-l-status-branch-name)))
-		      (set-text-properties 0 (length branch-name) '(face mvc-face-default-directory) branch-name)
+		      (if (string= mvc-l-status-branch-name "master")
+			  (set-text-properties 8 (length branch-name) '(face mvc-face-branch-master) branch-name)
+			(set-text-properties 8 (length branch-name) '(face mvc-face-branch-default) branch-name))
 		      (setq header-line-format (append header-line-format (list (concat " " branch-name))))))
 		  (when (and update-string
 			     (eq b status-buffer))
@@ -1197,7 +1278,13 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	     mvc-l-status-code-hash)))
 
 (defun mvc-status-draw-footer ()
-  (mvc-insert-with-face (format "files:%-5d  marks:%-5d " mvc-l-status-files mvc-l-status-marks)
+  (mvc-insert-with-face (concat "information: " mvc-l-status-mvcstatus-header-information "\n")
+			'mvc-face-status-footer)
+  (mvc-status-insert-toggle-button (not mvc-l-status-command-no-argument-p)
+				   "command(log/commit) argument ON"
+				   "command(log/commit) NO ARGUMENT"
+				   'mvc-status-mode-toggle-command-no-argument)
+  (mvc-insert-with-face (format "    files:%-5d  marks:%-5d " mvc-l-status-files mvc-l-status-marks)
 			'mvc-face-status-footer)
   (mvc-insert-with-face "\n"
 			'mvc-face-status-footer)
@@ -1418,6 +1505,32 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
 
 
+;;; mvc-cheat-sheet
+
+(defun mvc-cheat-sheet ()
+  (let* ((mvctmphist (cdr (assq mvc-l-status-program mvc-default-cheat-sheet-history)))
+	 (status-buffer (current-buffer))
+	 (base (concat "*mvc-"
+		       (cdr (assq mvc-l-status-program mvc-program-display-name)))))
+    (save-current-buffer
+      (switch-to-buffer (get-buffer-create (mvc-create-buffer-name (concat base "-cheat-sheet*") default-directory)))
+      (mvc-cheat-sheet-mode status-buffer)
+      (when (= (point-max) 1)
+	(let ((cheat-sheet-filename (concat mvc-default-cheat-sheet-directory ".mvc." (buffer-name))))
+	  (setq buffer-file-name cheat-sheet-filename)
+	  (if (file-exists-p cheat-sheet-filename)
+	      (progn
+		(insert-file-contents cheat-sheet-filename)
+		(set-buffer-modified-p nil))
+	    (insert "# \"\\C-c\\C-c\" to run current line command\n")
+	    (mapcar #'(lambda (a)
+			(insert (concat a "\n")))
+		    mvctmphist)
+	    (goto-char (point-min))))))))
+
+
+
+
 ;;; mvc-command
 
 (defun mvc-command-get-current-or-mark-file-name-list (current-only-p)
@@ -1448,83 +1561,6 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 		     (setq file-name-list (append file-name-list (list (substring key 2))))))
 	       mvc-l-status-mark-hash))
     file-name-list))
-
-(defun mvc-command-done-callback ()
-  (let ((commitlog-buffer (current-buffer))
-	async-p)
-    (with-current-buffer mvc-l-commitlog-mode-buffer-name-status
-      (setq async-p (mvc-status-async-p)))
-    (if async-p
-	(message mvc-message-process-already-running)
-      (let ((tmpfile (make-temp-name (concat mvc-default-tmp-directory "/mvcel")))
-	    commitlog-buffer-name
-	    status-buffer
-	    command)
-	(with-current-buffer mvc-l-commitlog-mode-buffer-name-status
-	  (setq commitlog-buffer-name (cdr (assq 'commitlog mvc-l-status-buffer-name-list)))
-	  (setq status-buffer (current-buffer))
-	  (setq command (cdr (assq 'command mvc-l-status-process-parameter)))
-	  (when (string-match "%commitlog" command)
-	    (setq command (replace-match tmpfile t nil command))))
-	(if mvc-default-commitlog-file-coding-system
-	    (let ((buffer-file-coding-system mvc-default-commitlog-file-coding-system))
-	      (with-temp-file tmpfile
-		(insert-buffer-substring commitlog-buffer-name)))
-	  (with-temp-file tmpfile
-	    (insert-buffer-substring commitlog-buffer-name)))
-	(with-current-buffer mvc-l-commitlog-mode-buffer-name-status
-	  (setq mvc-l-status-process-parameter `((tmpfile . ,tmpfile)
-						 (last-input-event . ,last-input-event)
-						 (commitlog-buffer . ,commitlog-buffer)))
-	  (mvc-process t nil nil
-		       status-buffer (cdr (assq 'process-temporary mvc-l-status-buffer-name-list))
-		       (split-string command)
-		       "%%commitlog mode" ""
-		       (lambda (status-buffer) 
-			 (with-current-buffer status-buffer
-			   (let ((tmpfile (cdr (assq 'tmpfile mvc-l-status-process-parameter))))
-			     (delete-file tmpfile)
-			     (when (eq last-input-event (cdr (assq 'last-input-event mvc-l-status-process-parameter)))
-			       (set-window-configuration mvc-l-status-last-window-configuration))
-			     (save-current-buffer
-			       (save-selected-window
-				 (switch-to-buffer-other-window (get-buffer-create (cdr (assq 'result mvc-l-status-buffer-name-list))))
-				 (mvc-show-call-process-temporary-result status-buffer)))
-			     (with-current-buffer (cdr (assq 'commitlog-buffer mvc-l-status-process-parameter))
-			       (fundamental-mode)))))))))))
-
-(defun mvc-command ()
-  ;; $B%R%9%H%j(B($BJ8;zNs(B)$B$G5/F0$9$k$N$G(B mvc-process $B$G$O$J$/(B
-  ;; async-shell-command $B$r;H$C$F$$$k$3$H$KCm0U!#(B
-  (let* ((concat-file-name-list (mapconcat #'(lambda (a)
-					       a)
-					   (mvc-command-get-current-or-mark-file-name-list nil)
-					   " "))
-	 (status-buffer (current-buffer))
-	;; mvctmphist $B$O(B hist $B$H$$$&L>A0$G$ODL$i$J$$$3$H$KCm0U!#(B read-shell-command $B$G(B 'hist $B$r;H$C$F$k$N$+$J(B?
-	 (mvctmphist (mapcar #'(lambda (a)
-				 (when (string-match "%mvc" a)
-				   (setq a (replace-match (concat mvc-l-status-mvc-program-name " -- " mvc-l-status-program-name) t nil a)))
-				 (when (string-match "%program" a)
-				   (setq a (replace-match mvc-l-status-program-name t nil a)))
-				 (when (string-match "%files" a)
-				   (setq a (replace-match concat-file-name-list t nil a)))
-				 (when (string-match "%file" a)
-				   (setq a (replace-match (nth 0 (mvc-command-get-current-or-mark-file-name-list t)) t nil a)))
-				 a)
-			     (append shell-command-history (cdr (assq mvc-l-status-program mvc-default-command-history)))))
-	 (command (read-shell-command "mvc-command: "
-				      (nth 0 mvctmphist)
-				      'mvctmphist)))
-    (setq shell-command-history (append (list command) shell-command-history))
-    (if (string-match "%commitlog" command)
-	(progn
-	  (setq mvc-l-status-last-window-configuration (current-window-configuration))
-	  (setq mvc-l-status-process-parameter `((command . ,command)))
-	  (switch-to-buffer-other-window (get-buffer-create (cdr (assq 'commitlog mvc-l-status-buffer-name-list))))
-	  (mvc-commitlog-mode status-buffer (lambda ()
-					      (mvc-command-done-callback))))
-      (async-shell-command command))))
 
 ;; $B%+%l%s%H0LCV$N%U%!%$%k$^$?$O%^!<%/$5$l$?%U%!%$%k$KBP$7%3%^%s%I$r<B9T(B
 ;; $B$7$^$9!#(B
@@ -1560,6 +1596,11 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	  (progn
 	    (let ((flag t)
 		  (program-name mvc-l-status-program-name))
+	      (when (or (and (eq command-key 'commit)
+			     mvc-l-status-command-no-argument-p)
+			(and (eq command-key 'log)
+			     mvc-l-status-command-no-argument-p))
+		(setq file-name-list nil))
 	      (when yes-or-no-p
 		(setq flag (yes-or-no-p (if (<= mvc-l-status-marks 1)
 					    (concat command-name " " (nth 0 file-name-list) "?")
@@ -1735,34 +1776,76 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	  (status-buffer (current-buffer))
 	  commitlog-buffer-name
 	  result-buffer-name
-	  file-name-list)
+	  file-name-list
+	  (run-server-p (and mvc-default-use-emacs-client
+			     (fboundp 'server-running-p)
+			     (server-running-p))))
       (setq commitlog-buffer-name (cdr (assq 'commitlog mvc-l-status-buffer-name-list)))
       (setq result-buffer-name (cdr (assq 'result mvc-l-status-buffer-name-list)))
       (if (or file-name
+	      mvc-l-status-command-no-argument-p
 	      (>= marks 1))
 	  (progn
-	    (if (= marks 0)
-		(setq file-name-list (list file-name))
-	      (maphash #'(lambda (key value)
-			   (when (string= value "*")
-			     (setq file-name-list (append file-name-list (list key)))))
-		       mvc-l-status-mark-hash))
+	    (unless mvc-l-status-command-no-argument-p
+	      (if (= marks 0)
+		  (setq file-name-list (list file-name))
+		(maphash #'(lambda (key value)
+			     (when (string= value "*")
+			       (setq file-name-list (append file-name-list (list key)))))
+			 mvc-l-status-mark-hash)))
 
 	    (setq mvc-l-status-last-window-configuration (current-window-configuration))
 	    (let ((mvc-program-name mvc-l-status-mvc-program-name)
+		  (command-no-argument-p mvc-l-status-command-no-argument-p)
+		  (program mvc-l-status-program)
 		  (program-name mvc-l-status-program-name)
 		  (commit-message mvc-default-commit-message)
-		  (log-option (mvc-status-get-current-program-option-list 'log)))
+		  (log-option (mvc-status-get-current-program-option-list 'log))
+		  (status-option (mvc-status-get-current-program-option-list 'status)))
 	      (switch-to-buffer (get-buffer-create result-buffer-name))
 	      (setq buffer-undo-list t)
 	      (setq buffer-read-only nil)
 
 	      (erase-buffer)
-	      (if (<= marks 1)
-		  (mvc-insert-with-face "** File to commit\n"
-					'mvc-face-commit-headline)
-		(mvc-insert-with-face (format "** Commit %d files\n" marks)
-				      'mvc-face-commit-headline))
+	      (if command-no-argument-p
+		  (progn
+		    (mvc-insert-with-face "** NO ARGUMENT MODE!\n"
+					  'mvc-face-commit-headline)
+		    (let ((insert-point (point)))
+		      (apply 'call-process program-name nil t nil (append
+								   status-option))
+		      (goto-char (point-min))
+		      (if (re-search-forward "^Changes to be committed:$" nil t)
+			  (progn
+			    (let (face-point-start face-point-end)
+			      (beginning-of-line)
+			      (setq face-point-start (point))
+			      (end-of-line)
+			      (setq face-point-end (point))
+			      (set-text-properties face-point-start
+						   (+ face-point-start (- face-point-end face-point-start))
+						   (list 'face 'mvc-face-commit-git-commit-underline)))
+			    (let (face-point-start face-point-end)
+			      (forward-line 1)
+			      (beginning-of-line)
+			      (setq face-point-start (point))
+			      (search-forward "\n\n" nil t)
+			      (search-forward "\n\n" nil t)
+			      (forward-line -1)
+			      (setq face-point-end (point))
+			      (set-text-properties face-point-start
+						   (+ face-point-start (- face-point-end face-point-start))
+						   (list 'face 'mvc-face-commit-git-commit))))
+			(goto-char insert-point)
+			(insert "\n")
+			(mvc-insert-with-face "#### NO COMMIT FILES ####" 'mvc-face-commit-warning)
+			(insert "\n\n"))
+		      (goto-char (point-max))))
+		(if (<= marks 1)
+		    (mvc-insert-with-face "** File to commit\n"
+					  'mvc-face-commit-headline)
+		  (mvc-insert-with-face (format "** Commit %d files\n" marks)
+					'mvc-face-commit-headline)))
 
 	      (mapc #'(lambda (a)
 			(when (string= a ".")
@@ -1780,15 +1863,18 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 				    'mvc-face-commit-headline)
 
 	      ;; $B$3$3$K(B insert $B$7$?$$$N$G(B call-process $B$rD>@\;HMQ!#(B
-	      (apply 'call-process mvc-program-name nil t nil (append (list "--" program-name)
-								      log-option
-								      (list ".")))
+	      (apply 'call-process mvc-program-name nil t nil (append
+							       (cdr (assq program (cdr (assq 'log mvc-mvc-default-option-list))))
+							       (list "--" program-name)
+							       log-option
+							       (list ".")))
 
 	      (let ((buffer (get-buffer commitlog-buffer-name)))
 		(goto-char (point-min))
 		(mvc-insert-with-face "** Information\n"
 				      'mvc-face-commit-headline)
-		(when (and (not buffer)
+		(when (and (not run-server-p)
+			   (not buffer)
 			   commit-message)
 		  (mvc-insert-with-face "    * insert default commit message\n"
 					'mvc-face-commit-warning))
@@ -1799,13 +1885,22 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 		(setq buffer-read-only t)
 		(goto-char (point-min))
 
-		(if buffer
-		    (switch-to-buffer-other-window buffer)
-		  (switch-to-buffer-other-window (get-buffer-create commitlog-buffer-name))
-		  (when commit-message
-		    (insert commit-message)))))
-
-	    (mvc-commitlog-mode status-buffer))
+		(when (not run-server-p)
+		  (if buffer
+		      (switch-to-buffer-other-window buffer)
+		    (switch-to-buffer-other-window (get-buffer-create commitlog-buffer-name))
+		    (when commit-message
+		      (insert commit-message))))))
+	    (if run-server-p
+		(progn
+		  (switch-to-buffer (get-buffer-create result-buffer-name))
+		  (set-buffer status-buffer)
+		  (mvc-command-current-or-mark (lambda (status-buffer)
+						 (with-current-buffer status-buffer
+						   (mvc-async-status)
+						   (switch-to-buffer status-buffer))) nil 'commit)
+		  (switch-to-buffer-other-window result-buffer-name))
+	      (mvc-commitlog-mode status-buffer)))
 	(message "no commit file!")))))
 
 (defun mvc-command-log (prefix-argument)
@@ -1882,44 +1977,59 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
       (unless (string= version mvc-version-string)
 	(message "illegal version \"%s\"" version)))
     (re-search-forward "rawstatus:\\([0-9]+\\)")
-    (setq mvc-l-status-mvcstatus-header-rawstatus (string-to-number (match-string 1)))
-    (re-search-forward "^HEADEREND$" nil t)
-    (forward-line)
-    (let (old-hash)
+    (let ((header-rawstatus (string-to-number (match-string 1))))
+      ;; FIXME! $BK\Mh$3$3$G(B mvc-l-status-mvcstatus-header-rawstatus $B$r@_Dj$9$Y$-$@$,!"(B 0 $BA0Ds$N%3!<%I$,4^$^$l$F$$$k$N$G=$@5$OJ]N1!#(B
+      ;; (with-current-buffer status-buffer
+      ;; 	(setq mvc-l-status-mvcstatus-header-rawstatus header-rawstatus))
+      (re-search-forward "^HEADEREND$" nil t)
       (with-current-buffer status-buffer
-	(setq mvc-l-status-last-execute-time-status (current-time))
-	(setq old-hash (copy-hash-table mvc-l-status-mark-hash))
-	(setq mvc-l-status-files 0)
-	(setq mvc-l-status-marks 0)
-	(clrhash mvc-l-status-mark-hash)
-	(clrhash mvc-l-status-code-hash)
-	(clrhash mvc-l-status-type-hash)
-	(clrhash mvc-l-status-information-hash)
-	(clrhash mvc-l-status-after-save-hook-hash))
-      (let ((files 0))
-	(while (< (point) (point-max))
-	  (if (char-equal (char-after) ?/)
-	      (progn
-		(forward-line))
-	    (let* ((start (point))
-		   (rawstatus (buffer-substring start (+ start mvc-l-status-mvcstatus-header-rawstatus)))
-		   (mvcstatus (buffer-substring (+ start mvc-l-status-mvcstatus-header-rawstatus 1) (+ start mvc-l-status-mvcstatus-header-rawstatus 2)))
-		   (type (buffer-substring (+ start mvc-l-status-mvcstatus-header-rawstatus 3) (+ start mvc-l-status-mvcstatus-header-rawstatus 4)))
-		   information
-		   file-name-with-prefix-and-info
-		   file-name-with-prefix)
-	      (end-of-line)
-	      (setq file-name-with-prefix-and-info (buffer-substring (+ start mvc-l-status-mvcstatus-header-rawstatus 5) (point)))
-	      (if (string-match "\\(        // .+\\)$" file-name-with-prefix-and-info)
-		  (progn
-		    (setq information (match-string 1 file-name-with-prefix-and-info))
-		    (setq file-name-with-prefix (substring file-name-with-prefix-and-info 0 (* -1 (length information)))))
-		(setq file-name-with-prefix file-name-with-prefix-and-info))
-	      (mvc-async-status-process-sentinel-add status-buffer file-name-with-prefix mvcstatus type information old-hash)
-	      (setq files (1+ files))
-	      (forward-line))))
+	(setq mvc-l-status-mvcstatus-header-information ""))
+      (let ((header-end-point (point))
+	    tmp)
+	(save-excursion
+	  (goto-char (point-min))
+	  (when (re-search-forward "^information:\\(.+\\)" header-end-point t)
+	    (setq tmp (match-string 1))
+	    (with-current-buffer status-buffer
+	      (setq mvc-l-status-mvcstatus-header-information tmp)))))
+      (forward-line)
+      (let (old-hash)
 	(with-current-buffer status-buffer
-	  (setq mvc-l-status-files files))))
+	  (setq mvc-l-status-last-execute-time-status (current-time))
+	  (setq old-hash (copy-hash-table mvc-l-status-mark-hash))
+	  (setq mvc-l-status-files 0)
+	  (setq mvc-l-status-marks 0)
+	  (clrhash mvc-l-status-mark-hash)
+	  (clrhash mvc-l-status-code-hash)
+	  (clrhash mvc-l-status-type-hash)
+	  (clrhash mvc-l-status-information-hash)
+	  (clrhash mvc-l-status-after-save-hook-hash))
+	(let ((files 0))
+	  (while (< (point) (point-max))
+	    (if (char-equal (char-after) ?/)
+		(progn
+		  (forward-line))
+	      (let* ((start (point))
+		     (rawstatus (buffer-substring start (+ start header-rawstatus)))
+		     (mvcstatus (buffer-substring (+ start header-rawstatus 1) (+ start header-rawstatus 2)))
+		     (type (buffer-substring (+ start header-rawstatus 3) (+ start header-rawstatus 4)))
+		     information
+		     file-name-with-prefix-and-info
+		     file-name-with-prefix)
+		(end-of-line)
+		(setq file-name-with-prefix-and-info (buffer-substring (+ start header-rawstatus 5) (point)))
+		(if (string-match "\\(        // .+\\)$" file-name-with-prefix-and-info)
+		    (progn
+		      (setq information (match-string 1 file-name-with-prefix-and-info))
+		      (setq file-name-with-prefix (substring file-name-with-prefix-and-info 0 (* -1 (length information)))))
+		  (setq file-name-with-prefix file-name-with-prefix-and-info))
+		(mvc-async-status-process-sentinel-add status-buffer file-name-with-prefix mvcstatus type information old-hash)
+		(setq files (1+ files))
+		(forward-line))))
+	  (with-current-buffer status-buffer
+	    (setq mvc-l-status-files files)
+	    (setq mvc-l-status-branch-name (mvc-status-mode-get-branch-name))
+	    (mvc-status-update-header-line)))))
     ;; read only $B$K$7$?8e!"IA2h$7$F$*$7$^$$!#(B
     (setq buffer-read-only t)
     (with-current-buffer status-buffer
@@ -2008,8 +2118,8 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	  (insert-buffer-substring async-process-buffer-name)
 	  (setq buffer-read-only t)))
       (with-current-buffer status-buffer
-	(mvc-status-draw-with-save-load-point)
-	(kill-buffer async-process-buffer-name)))))
+	(kill-buffer async-process-buffer-name)
+	(mvc-status-mode-status)))))
 
 (defun mvc-async-push-pull-core (status-buffer command command-list path to-from)
   (if (yes-or-no-p (concat (nth 0 command-list) " " to-from " \"" path "\"?  "))
@@ -2159,6 +2269,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (set (make-local-variable 'mvc-l-status-program) initial-program)
     (set (make-local-variable 'mvc-l-status-program-name) (cdr (assq mvc-l-status-program mvc-program-name)))
     (set (make-local-variable 'mvc-l-status-mvc-program-name) mvc-mvc-program-name)
+    (set (make-local-variable 'mvc-l-status-command-no-argument-p) (eq 'git initial-program))
     (let ((base (concat "*mvc-"
 			(cdr (assq mvc-l-status-program mvc-program-display-name)))))
       (set (make-local-variable 'mvc-l-status-buffer-name-list)
@@ -2176,7 +2287,8 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 		 (cons 'rename (mvc-create-buffer-name (concat base "-PROCESS-temporary*") default-directory))
 		 (cons 'revert (mvc-create-buffer-name (concat base "-PROCESS-temporary*") default-directory))
 		 (cons 'process-temporary (mvc-create-buffer-name (concat base "-PROCESS-temporary*") default-directory))
-		 (cons 'process-async (mvc-create-buffer-name (concat base "-PROCESS-async*") default-directory)))))
+		 (cons 'process-async (mvc-create-buffer-name (concat base "-PROCESS-async*") default-directory))
+		 (cons 'process-command (mvc-create-buffer-name (concat base "-PROCESS-command*") default-directory)))))
 
     (mvc-status-update-header-line)
 
@@ -2196,6 +2308,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (set (make-local-variable 'mvc-l-status-last-execute-time-push) nil)
     (set (make-local-variable 'mvc-l-status-last-execute-time-pull) nil)
     (set (make-local-variable 'mvc-l-status-mvcstatus-header-rawstatus) 0)
+    (set (make-local-variable 'mvc-l-status-mvcstatus-header-information) "")
     (make-local-variable 'mvc-l-status-save-load-point)
     (make-local-variable 'mvc-l-status-save-load-file-name)
     (make-local-variable 'mvc-l-status-save-load-window-point-hash)
@@ -2239,6 +2352,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (set (make-local-variable 'mvc-l-status-file-name-list-git-stage-count) 0)
     (set (make-local-variable 'mvc-l-status-file-name-list-git-rename-count) 0)
     (set (make-local-variable 'mvc-l-status-file-name-list-working-directory-count) 0)
+    (set (make-local-variable 'mvc-l-status-diff-paramter) nil)
 
     (add-hook 'kill-buffer-hook 'mvc-status-kill-buffer-hook))
 
@@ -2437,6 +2551,15 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	  (mvc-status-draw-with-save-load-point))
       (message "recursive control unsupported"))))
 
+(defun mvc-status-mode-toggle-command-no-argument ()
+  "toggle command no argument recursive"
+  (interactive)
+
+  (if (mvc-status-async-p)
+      (message mvc-message-process-already-running)
+    (setq mvc-l-status-command-no-argument-p (not mvc-l-status-command-no-argument-p))
+    (mvc-status-draw-with-save-load-point)))
+
 (defun mvc-status-mode-mark ()
   "mark"
   (interactive)
@@ -2617,7 +2740,11 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
   "commit"
   (interactive)
 
-  (mvc-command-commit))
+  (if (string= mvc-l-status-branch-name "master")
+      (if (yes-or-no-p "Current branch is \"master\". Are you sure you want to commit?")
+	  (mvc-command-commit)
+	(message "canceled!"))
+    (mvc-command-commit)))
 
 (defun mvc-status-mode-log (arg)
   "log"
@@ -2664,16 +2791,9 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 			(setq first a)
 			(throw 'mapc nil)))
 		  (buffer-list)))
+	  (kill-buffer (cdr (assq 'status mvc-l-status-buffer-name-list)))
 	  (when first
-	    (mapc #'(lambda (a)
-		      (unless (eq first a)
-			(setq after (append after (list a)))))
-		  (buffer-list))
-	    (setq new-list (append (list first) after))
-	    (while new-list
-	      (bury-buffer (car new-list))
-	      (setq new-list (cdr new-list)))))
-	(kill-buffer (cdr (assq 'status mvc-l-status-buffer-name-list))))
+	    (switch-to-buffer first))))
     (message "canceled!")))
 
 (defun mvc-status-mode-rename (file-name)
@@ -2717,17 +2837,12 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
   (mvc-command-diff-current-or-mark arg))
 
-(defun mvc-status-mode-command ()
-  "command"
+(defun mvc-status-mode-cheat-sheet ()
+  "cheat-sheet"
   (interactive)
 
   (save-current-buffer
-    (mvc-command))
-  (save-current-buffer
-    (sit-for 0.3)
-    (setq mvc-l-status-branch-name (mvc-status-mode-get-branch-name))
-    (sit-for 0.3))
-  (mvc-async-status))
+    (mvc-cheat-sheet)))
 
 (defun mvc-status-mode-especial ()
   "especial"
@@ -2842,17 +2957,18 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
   (set (make-local-variable 'mvc-l-log-mode-buffer-name-status) (buffer-name status-buffer))
 
-  (save-excursion
-    (goto-char (point-min))
-    (while (or (re-search-forward "^[^:]+: +[0-9]+:[0-9a-f]+$" nil t)
-	       (re-search-forward "^\\(commit\\) +\\([0-9a-f]+\\)" nil t)
-	       (re-search-forward "^r[0-9]+ +|" nil t)
-	       (re-search-forward "^\\(revno\\): \\([0-9]+\\)" nil t))
-      (beginning-of-line)
-      (let ((start (point)))
-	(forward-line)
-	(backward-char 1)
-	(set-text-properties start (point) (list 'face 'mvc-face-log-revision)))))
+  (when (< (buffer-size) mvc-default-log-face-limit)
+    (save-excursion
+      (goto-char (point-min))
+      (while (or (re-search-forward "^[^:]+: +[0-9]+:[0-9a-f]+$" nil t)
+		 (re-search-forward "^\\(commit\\) +\\([0-9a-f]+\\)" nil t)
+		 (re-search-forward "^r[0-9]+ +|" nil t)
+		 (re-search-forward "^\\(revno\\): \\([0-9]+\\)" nil t))
+	(beginning-of-line)
+	(let ((start (point)))
+	  (forward-line)
+	  (backward-char 1)
+	  (set-text-properties start (point) (list 'face 'mvc-face-log-revision))))))
 
   (setq buffer-read-only t)
 
@@ -2932,6 +3048,27 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 			 (message "UNKNOWN PROGRAM!!"))))
 	      (message "not found"))))
       (message "canceled!"))))
+
+(defun mvc-log-mode-diff ()
+  (interactive)
+
+  (save-excursion
+    (let ((limit (point)))
+      (end-of-line)
+      (setq limit (point))
+      (beginning-of-line)
+      (if (or (re-search-forward "^\\([^:]+\\): +[0-9]+:\\([0-9a-f]+\\)$" limit t)
+	      (re-search-forward "^\\(commit\\) +\\([0-9a-f]+\\)" limit t)
+	      (re-search-forward "^\\(r\\)\\([0-9]+\\) +|" limit t)
+	      (re-search-forward "^\\(revno\\): \\([0-9]+\\)" limit t))
+	  (let ((key (match-string 1))
+		(revision (match-string 2)))
+	    (with-current-buffer mvc-l-log-mode-buffer-name-status
+	      (setq mvc-l-status-diff-paramter (concat (cdr (assq mvc-l-status-program mvc-default-diff-option-list))
+						       revision))
+	      (mvc-command-diff-only-current "")
+	      (setq mvc-l-status-diff-paramter nil)))
+	(message "not found")))))
 
 (defun mvc-log-mode-status-mode-next-status ()
   (interactive)
@@ -3485,6 +3622,152 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (if (= (length path-list) 1)
 	(mvc-especial-mode-reset-cursor property path-list start-column)
       (goto-char start-point))))
+
+
+
+
+;;; mvc-cheat-sheet-mode
+
+(defun mvc-cheat-sheet-mode (status-buffer)
+  (interactive)
+
+  (kill-all-local-variables)
+  (use-local-map mvc-cheat-sheet-mode-map)
+  (setq mode-name mvc-mode-name-cheat-sheet)
+  (setq major-mode 'mvc-cheat-sheet-mode)
+
+  (set (make-local-variable 'mvc-l-command-mode-status-buffer) status-buffer)
+
+  (run-hooks 'mvc-cheat-sheet-mode-hook))
+
+(defun mvc-cheat-sheet-mode-done-process-sentinel (process event)
+  (with-current-buffer (process-buffer process)
+    (when (string= " command async" mode-line-process)
+      (setq mode-line-process nil))
+    (cond ((or (string= event "finished\n")
+	       (string= event "exited abnormally with code"))
+	   (goto-char (point-min))
+	   (with-current-buffer local-status-buffer
+	     (mvc-status-mode-status))
+	   (when local-return-window
+	     (select-window local-return-window)))
+	  (t
+	   (message (concat "process error error:" event))))))
+
+(defun mvc-cheat-sheet-mode-done-commitlog-mode-done-callback-commit ()
+  (let ((commitlog-buffer (current-buffer))
+	async-p
+	command
+	async-process-buffer-name
+	process
+	backup-window
+	(status-buffer mvc-l-commitlog-mode-buffer-name-status))
+    (with-current-buffer mvc-l-commitlog-mode-buffer-name-status
+      (setq async-p (mvc-status-async-p))
+      (setq command (cdr (assq 'command mvc-l-status-process-parameter)))
+      (setq async-process-buffer-name (cdr (assq 'async-process-buffer-name mvc-l-status-process-parameter)))
+      (setq process (cdr (assq 'process mvc-l-status-process-parameter)))
+      (setq backup-window (cdr (assq 'backup-window mvc-l-status-process-parameter))))
+    (if async-p
+	(message mvc-message-process-already-running)
+      (let ((tmpfile (make-temp-name (concat mvc-default-tmp-directory "/mvcel")))
+	    commitlog-buffer-name)
+	(with-current-buffer mvc-l-commitlog-mode-buffer-name-status
+	  (setq commitlog-buffer-name (cdr (assq 'commitlog mvc-l-status-buffer-name-list))))
+	(if mvc-default-commitlog-file-coding-system
+	    (let ((buffer-file-coding-system mvc-default-commitlog-file-coding-system))
+	      (with-temp-file tmpfile
+		(insert-buffer-substring commitlog-buffer-name)))
+	  (with-temp-file tmpfile
+	    (insert-buffer-substring commitlog-buffer-name)))
+	(with-current-buffer mvc-l-commitlog-mode-buffer-name-status
+
+	  (setq command (replace-regexp-in-string "%commitlog" tmpfile command))
+	  (setq async-process-buffer-name (cdr (assq 'process-command mvc-l-status-buffer-name-list)))
+	  (with-current-buffer (get-buffer-create async-process-buffer-name)
+	    (erase-buffer)
+	    (kill-all-local-variables)
+
+	    (setq process (start-process-shell-command async-process-buffer-name
+						       async-process-buffer-name
+						       command))
+	    (set (make-local-variable 'local-status-buffer) status-buffer)
+	    (set (make-local-variable 'local-return-window) backup-window)
+	    (set (make-local-variable 'local-process) process))
+
+	  (set-process-sentinel process 'mvc-cheat-sheet-mode-done-process-sentinel)
+	  (switch-to-buffer-other-window async-process-buffer-name))))))
+
+(defun mvc-cheat-sheet-mode-done ()
+  "mvc-cheat-sheet-mode-done"
+  (interactive)
+
+  (let ((special "")
+	command
+	line-start)
+    (save-excursion
+      (beginning-of-line)
+      (setq line-start (point))
+      (end-of-line)
+      (setq command (buffer-substring line-start (point)))
+      (forward-line -1)
+      (setq line-start (point))
+      (end-of-line)
+      (setq special (buffer-substring line-start (point)))
+      (unless (string-match "^#@" special)
+	(setq special "")))
+
+    (with-current-buffer mvc-l-command-mode-status-buffer
+      (let ((concat-file-name-list (mapconcat #'(lambda (a)
+						  a)
+					      (mvc-command-get-current-or-mark-file-name-list nil)
+					      " ")))
+	(when (string-match "%mvc" command)
+	  (setq command (replace-match (concat mvc-l-status-mvc-program-name " -- " mvc-l-status-program-name) t nil command)))
+	(when (string-match "%program" command)
+	  (setq command (replace-match mvc-l-status-program-name t nil command)))
+	(when (string-match "%files" command)
+	  (setq command (replace-match concat-file-name-list t nil command)))
+	(when (string-match "%file" command)
+	  (setq command (replace-match (nth 0 (mvc-command-get-current-or-mark-file-name-list t)) t nil command)))))
+
+    (if (string-match "^[ \t]*#" command)
+	(message "commant line!")
+      (if (yes-or-no-p (concat "run \"" command "\" ?"))
+	  (with-current-buffer mvc-l-command-mode-status-buffer
+	    (let ((status-buffer (current-buffer))
+		  async-process-buffer-name
+		  process
+		  backup-window)
+	      (unless (string-match "no-return-window" special)
+		(setq backup-window (selected-window)))
+	      (if (string-match "%commitlog" command)
+		  (progn
+		    (setq mvc-l-status-last-window-configuration (current-window-configuration))
+		    (setq mvc-l-status-process-parameter `((command . ,command)
+							   (async-process-buffer-name . ,async-process-buffer-name)
+							   (process . ,process)
+							   (backup-window . ,backup-window)))
+		    (switch-to-buffer-other-window (get-buffer-create (cdr (assq 'commitlog mvc-l-status-buffer-name-list))))
+		    (mvc-commitlog-mode status-buffer (lambda ()
+							(mvc-cheat-sheet-mode-done-commitlog-mode-done-callback-commit))))
+		(setq async-process-buffer-name (cdr (assq 'process-command mvc-l-status-buffer-name-list)))
+		(with-current-buffer (get-buffer-create async-process-buffer-name)
+		  (erase-buffer)
+		  (kill-all-local-variables)
+
+		  (unless mode-line-process
+		    (setq mode-line-process " command async"))
+		  (setq process (start-process-shell-command async-process-buffer-name
+							     async-process-buffer-name
+							     command))
+		  (set (make-local-variable 'local-status-buffer) status-buffer)
+		  (set (make-local-variable 'local-return-window) backup-window)
+		  (set (make-local-variable 'local-process) process))
+
+		(set-process-sentinel process 'mvc-cheat-sheet-mode-done-process-sentinel)
+		(switch-to-buffer-other-window async-process-buffer-name))))
+	(message "canceled!")))))
 
 
 

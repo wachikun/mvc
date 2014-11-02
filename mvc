@@ -2,7 +2,7 @@
 #
 # mvc -- M(eta|ulti|enu) Version Control
 # 
-# Copyright (C) 2013 Tadashi Watanabe <wac@umiushi.org>
+# Copyright (C) 2013, 2014 Tadashi Watanabe <wac@umiushi.org>
 # 
 # Author: Tadashi Watanabe <wac@umiushi.org>
 # Maintainer: Tadashi Watanabe <wac@umiushi.org>
@@ -35,14 +35,16 @@ use warnings;
 use File::Find;
 use Getopt::Long;
 
-my $global_mvc_version = 'mvc version 0.1 test9';
+my $global_mvc_version = 'mvc version 0.2';
 my $global_exitcode;
+my @global_ignore_regexp;
 my %global_options;
 GetOptions("program=s" => \$global_options{'program'},
 	   "disable-search-unknown" => \$global_options{'disable-search-unknown'},
 	   "disable-ignore-repository" => \$global_options{'disable-ignore-repository'},
 	   "get-ignore" => \$global_options{'get-ignore'},
 	   "keep-mvcautorevert-newfile" => \$global_options{'keep-mvcautorevert-newfile'},
+           "log-lines=i" => \$global_options{'log-lines'},
            "help" => \$global_options{'help'},
            "verbose" => \$global_options{'verbose'},
            "version" => \$global_options{'version'});
@@ -54,6 +56,21 @@ foreach (@ARGV) {
 }
 chop($debug_argv);
 
+read_mvcignore($ENV{'HOME'} . '/.mvcignore');
+read_mvcignore('.mvcignore');
+
+sub read_mvcignore {
+    my $filename = $_[0];
+    if (open(my $fh, '<', $filename)) {
+        while (<$fh>) {
+            if (/^.+$/) {
+                chomp;
+                push(@global_ignore_regexp, $_);
+            }
+        }
+    }
+}
+
 sub debug_print {
     # open(my $wfh, '>>', '/tmp/mvc.debug.log') or die;
     # print $wfh @_;
@@ -64,6 +81,10 @@ debug_print(__LINE__ . ":DB:start " . localtime() . " ================\n");
 
 sub print_status_progress($) {
     print "progress:$_[0]\n";
+}
+
+sub print_status_line_information($) {
+    print "information:$_[0]\n";
 }
 
 sub cut_string($$) {
@@ -115,7 +136,19 @@ sub get_core($@) {
     my @result = split(/\n/, do { local $/; <$pfh>; });
     close($pfh);
     $global_exitcode = $? >> 8;
-    @result;
+    if ($#global_ignore_regexp > -1) {
+        my @filtered_result;
+      OUTER:
+        foreach my $line (@result) {
+            foreach my $regexp (@global_ignore_regexp) {
+                next OUTER if $line =~ /$regexp/;
+            }
+            push(@filtered_result, $line);
+        }
+        @filtered_result;
+    } else {
+        @result;
+    }
 }
 
 sub get_default($$@) {
@@ -127,8 +160,16 @@ sub get_default($$@) {
 sub print_default($$@) {
     my $program = shift @_;
     open(my $pfh, '-|', $program, @_) or die;
-    while (<$pfh>) {
-	print;
+    if (defined($global_options{'log-lines'})) {
+        my $lines = $global_options{'log-lines'};
+        while (<$pfh>) {
+            last if --$lines < 0;
+            print;
+        }
+    } else {
+        while (<$pfh>) {
+            print;
+        }
     }
     close($pfh);
 }
@@ -228,6 +269,11 @@ sub get_git_status($@) {
     # @cached は staged か管理下のファイルが含まれる。
     my @cached = get_core($program, 'ls-files', '--cached', @_);
     print_status_progress("get others");
+    my @ignore = get_core($program, 'ls-files', '--others', '--ignored', '--exclude-standard', @_);
+    my %ignore;
+    foreach (@ignore) {
+	$ignore{$_}++;
+    }
     # @others は全ての ? が含まれる。
     my @others;
     unless (defined($global_options{'disable-search-unknown'})) {
@@ -236,6 +282,16 @@ sub get_git_status($@) {
     # @status は変更ありが含まれる。
     print_status_progress("get status");
     my @status = get_core($program, 'status', '--short', '--untracked-files=no', @_);
+
+    # information 用
+    my @information = get_core($program, 'status', '--untracked-files=no');
+    foreach (@information) {
+	if (/^Your branch is /) {
+	    chomp;
+	    print_status_line_information($_);
+	    last;
+	}
+    }
 
     print_status_progress("process A");
     my @staged;
@@ -248,15 +304,30 @@ sub get_git_status($@) {
 	    my $staged_status = $2;
 	    my $working_status = $3;
 	    my $filename = $4;
+	    if ($filename =~ />/ or $filename =~ /</) {
+		$staged_status =~ s/R/D/g;
+		$working_status = 'D';
+		if ($line =~ m!^.  (.+?).->.(.+)!) {
+		    my $filename_a = $1;
+		    my $filename_b = $2;
+		    # print qq(DB:a="$filename_a"\n);
+		    # print qq(DB:b="$filename_b"\n);
+		    # $working_filename_hash{$filename_a} = !0;
+		    # $working_filename_hash{$filename_b} = !0;
+		    push(@working, [$filename_a, sprintf("%-8s %s     %s", $rawstatus, $working_status, $filename_a)]);
+		    push(@staged, [$filename_b, sprintf("%-8s %s   s:%s", $rawstatus, $staged_status, $filename_b)]);
+		}
+	    } else {
 	    # print qq(DB:rawstatus="$rawstatus"\n);
-	    if ($staged_status ne ' ') {
-		my $mvcstatus = $staged_status;
-		push(@staged, [$filename, sprintf("%-8s %s   s:%s", $rawstatus, $mvcstatus, $filename)]);
-	    }
-	    if ($working_status ne ' ') {
-		my $mvcstatus = $working_status;
-		$working_filename_hash{$filename} = !0;
-		push(@working, [$filename, sprintf("%-8s %s     %s", $rawstatus, $mvcstatus, $filename)]);
+		if ($staged_status ne ' ') {
+		    my $mvcstatus = $staged_status;
+		    push(@staged, [$filename, sprintf("%-8s %s   s:%s", $rawstatus, $mvcstatus, $filename)]);
+		}
+		if ($working_status ne ' ') {
+		    my $mvcstatus = $working_status;
+		    $working_filename_hash{$filename} = !0;
+		    push(@working, [$filename, sprintf("%-8s %s     %s", $rawstatus, $mvcstatus, $filename)]);
+		}
 	    }
 	}
     }
@@ -268,6 +339,7 @@ sub get_git_status($@) {
     }
     print_status_progress("process C");
     foreach my $filename (@others) {
+	next if defined($ignore{$filename});
 	if (!defined($working_filename_hash{$filename})) {
 	    next if !defined($global_options{'disable-ignore-repository'}) and is_repository($filename);
 	    push(@working, [$filename, "?        ?     $filename"]);
@@ -692,6 +764,12 @@ mvc が認識しないオプションはそのままプログラムに渡され�
 して起動されます。
 
 
+=head2 .mvcignore
+
+カレントディレクトリの .mvcignore で指定された正規表現にマッチするラインを出力し
+ません。
+
+
 =head2 program
 
 program に以下の文字列を含む場合、そのプロラグムを mvc が自動的に認識し
@@ -787,6 +865,11 @@ hg では hg コマンドが常に取得するため、このオプションは�
 プログラムによっては、このオプションを付けても出力しない場合もあります。
 
 
+=head3 --log-lines=N
+
+ログを指定した行数だけ表示します。
+
+
 =head2 OUTPUT FORMAT
 
 出力フォーマットは header と body からなります。
@@ -796,6 +879,8 @@ hg では hg コマンドが常に取得するため、このオプションは�
 =item version:バージョン文字列
 
 =item progress:進捗表示用文字列
+
+=item information:status などが表示する情報文字列
 
 =item rawstatus:可変長サイズ(直後のスペースは含まない)
 
