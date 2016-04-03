@@ -1,6 +1,6 @@
 ;; mvc.el -- M(eta|ulti|enu) Version Control Interface -*- coding: iso-2022-jp -*-
 
-;; Copyright (C) 2007-2014 Tadashi Watanabe <wac@umiushi.org>
+;; Copyright (C) 2007-2016 Tadashi Watanabe <wac@umiushi.org>
 
 ;; Author: Tadashi Watanabe <wac@umiushi.org>
 ;; Maintainer: Tadashi Watanabe <wac@umiushi.org>
@@ -179,7 +179,7 @@
 						(subversion . nil)
 						(cvs . nil)))
 				     (log . ((mercurial . ("--verbose"))
-					     (git . ("--stat"))
+					     (git . ("--stat" "--graph"))
 					     (bazaar . ("--verbose"))
 					     (subversion . ("--verbose"))
 					     (cvs . nil))))
@@ -2961,7 +2961,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (save-excursion
       (goto-char (point-min))
       (while (or (re-search-forward "^[^:]+: +[0-9]+:[0-9a-f]+$" nil t)
-		 (re-search-forward "^\\(commit\\) +\\([0-9a-f]+\\)" nil t)
+		 (re-search-forward "^[\\*\\|\\\\ ]+\\(commit\\) +\\([0-9a-f]+\\)" nil t)
 		 (re-search-forward "^r[0-9]+ +|" nil t)
 		 (re-search-forward "^\\(revno\\): \\([0-9]+\\)" nil t))
 	(beginning-of-line)
@@ -3024,7 +3024,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	    (setq limit (point))
 	    (beginning-of-line)
 	    (if (or (re-search-forward "^\\([^:]+\\): +[0-9]+:\\([0-9a-f]+\\)$" limit t)
-		    (re-search-forward "^\\(commit\\) +\\([0-9a-f]+\\)" limit t)
+		    (re-search-forward "^[\\*\\|\\\\ ]+\\(commit\\) +\\([0-9a-f]+\\)" limit t)
 		    (re-search-forward "^\\(r\\)\\([0-9]+\\) +|" limit t)
 		    (re-search-forward "^\\(revno\\): \\([0-9]+\\)" limit t))
 		(let ((key (match-string 1))
@@ -3058,7 +3058,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
       (setq limit (point))
       (beginning-of-line)
       (if (or (re-search-forward "^\\([^:]+\\): +[0-9]+:\\([0-9a-f]+\\)$" limit t)
-	      (re-search-forward "^\\(commit\\) +\\([0-9a-f]+\\)" limit t)
+	      (re-search-forward "^[\\*\\|\\\\ ]+\\(commit\\) +\\([0-9a-f]+\\)" limit t)
 	      (re-search-forward "^\\(r\\)\\([0-9]+\\) +|" limit t)
 	      (re-search-forward "^\\(revno\\): \\([0-9]+\\)" limit t))
 	  (let ((key (match-string 1))
