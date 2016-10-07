@@ -475,144 +475,144 @@
 
 
 (defface mvc-face-tab-active
-  '((((type x w32 mac) (class color) (background light)) (:foreground "black" :background "bisque1" :bold t :box (:line-width 2 :style released-button)))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "white" :background "gray50" :bold t :box (:line-width 2 :style released-button))))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "black" :background "bisque1" :bold t :box (:line-width 2 :style released-button)))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "white" :background "gray50" :bold t :box (:line-width 2 :style released-button))))
   "tab active"
   :group 'mvc-faces)
 (defface mvc-face-tab-inactive
-  '((((type x w32 mac) (class color) (background light)) (:foreground "black" :background "bisque4" :bold t :box (:line-width 2 :style released-button)))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "white" :background "gray30" :bold t :box (:line-width 2 :style released-button))))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "black" :background "bisque4" :bold t :box (:line-width 2 :style released-button)))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "white" :background "gray30" :bold t :box (:line-width 2 :style released-button))))
   "tab inactive"
   :group 'mvc-faces)
 
 (defface mvc-face-button-active
-  '((((type x w32 mac) (class color) (background light)) (:foreground "black" :background "bisque1" :bold t :box (:line-width 2 :style released-button)))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "white" :background "gray50" :bold t :box (:line-width 2 :style released-button))))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "black" :background "bisque1" :bold t :box (:line-width 2 :style released-button)))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "white" :background "gray50" :bold t :box (:line-width 2 :style released-button))))
   "button active"
   :group 'mvc-faces)
 (defface mvc-face-button-inactive
-  '((((type x w32 mac) (class color) (background light)) (:foreground "black" :background "bisque4" :bold t :box (:line-width 2 :style released-button)))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "white" :background "gray20" :bold t :box (:line-width 2 :style released-button))))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "black" :background "bisque4" :bold t :box (:line-width 2 :style released-button)))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "white" :background "gray20" :bold t :box (:line-width 2 :style released-button))))
   "button inactive"
   :group 'mvc-faces)
 
 (defface mvc-face-toggle-button-active
-  '((((type x w32 mac) (class color) (background light)) (:foreground "black" :background "bisque3" :bold t :box (:line-width 3 :style pressed-button)))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "white" :background "gray20" :bold t :box (:line-width 3 :style pressed-button))))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "black" :background "bisque3" :bold t :box (:line-width 3 :style pressed-button)))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "white" :background "gray20" :bold t :box (:line-width 3 :style pressed-button))))
   "toggle button active"
   :group 'mvc-faces)
 (defface mvc-face-toggle-button-inactive
-  '((((type x w32 mac) (class color) (background light)) (:foreground "black" :background "bisque2" :bold t :box (:line-width 3 :style released-button)))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "white" :background "gray50" :bold t :box (:line-width 3 :style released-button))))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "black" :background "bisque2" :bold t :box (:line-width 3 :style released-button)))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "white" :background "gray50" :bold t :box (:line-width 3 :style released-button))))
   "toggle button inactive"
   :group 'mvc-faces)
 
 (defface mvc-face-default-directory
-  '((((type x w32 mac) (class color) (background light)) (:foreground "black" :background "bisque1"))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "white" :background "gray20")))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "black" :background "bisque1"))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "white" :background "gray20")))
   "default-directory"
   :group 'mvc-faces)
 
 (defface mvc-face-status-footer
-  '((((type x w32 mac) (class color) (background light)) (:foreground "black" :background "bisque1"))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "white" :background "gray20")))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "black" :background "bisque1"))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "white" :background "gray20")))
   "status footer"
   :group 'mvc-faces)
 (defface mvc-face-status-directory
-  '((((type x w32 mac) (class color) (background light)) (:foreground "darkblue" :bold t))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "CadetBlue1" :bold t)))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "darkblue" :bold t))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "CadetBlue1" :bold t)))
   "status directory"
   :group 'mvc-faces)
 (defface mvc-face-status-modified
-  '((((type x w32 mac) (class color) (background light)) (:foreground "darkgreen" :bold t))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "SpringGreen3" :bold t)))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "darkgreen" :bold t))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "SpringGreen3" :bold t)))
   "status modified"
   :group 'mvc-faces)
 
 (defface mvc-face-commit-headline
-  '((((type x w32 mac) (class color) (background light)) (:foreground "darkblue" :bold t :underline t))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "blue" :bold t :underline t)))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "darkblue" :bold t :underline t))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "blue" :bold t :underline t)))
   "commit headline"
   :group 'mvc-faces)
 (defface mvc-face-commit-fatal
-  '((((type x w32 mac) (class color) (background light)) (:foreground "red" :background "dimgray" :bold t :underline t))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "red" :background "dimgray" :bold t :underline t)))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "red" :background "dimgray" :bold t :underline t))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "red" :background "dimgray" :bold t :underline t)))
   "commit fatal"
   :group 'mvc-faces)
 (defface mvc-face-commit-warning
-  '((((type x w32 mac) (class color) (background light)) (:foreground "darkred" :bold t :underline t))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "red" :bold t :underline t)))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "darkred" :bold t :underline t))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "red" :bold t :underline t)))
   "commit warning"
   :group 'mvc-faces)
 (defface mvc-face-commit-information
-  '((((type x w32 mac) (class color) (background light)) (:foreground "black" :bold t))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "white" :bold t)))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "black" :bold t))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "white" :bold t)))
   "commit information"
   :group 'mvc-faces)
 (defface mvc-face-commit-git-commit-underline
-  '((((type x w32 mac) (class color) (background light)) (:foreground "black" :background "beige" :bold t :underline t))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "black" :background "beige" :bold t :underline t)))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "black" :background "beige" :bold t :underline t))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "black" :background "beige" :bold t :underline t)))
   "commit information"
   :group 'mvc-faces)
 (defface mvc-face-commit-git-commit
-  '((((type x w32 mac) (class color) (background light)) (:foreground "black" :background "beige" :bold t))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "black" :background "beige" :bold t)))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "black" :background "beige" :bold t))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "black" :background "beige" :bold t)))
   "commit information"
   :group 'mvc-faces)
 
 (defface mvc-face-animation-timer-0
-  '((((type x w32 mac) (class color)) (:foreground "#000f0f" :background "lightgray" :bold t)))
+  '((((type x w32 mac ns) (class color)) (:foreground "#000f0f" :background "lightgray" :bold t)))
   "animation timer 0"
   :group 'mvc-faces)
 (defface mvc-face-animation-timer-1
-  '((((type x w32 mac) (class color)) (:foreground "#003f00" :background "lightgray" :bold t)))
+  '((((type x w32 mac ns) (class color)) (:foreground "#003f00" :background "lightgray" :bold t)))
   "animation timer 1"
   :group 'mvc-faces)
 (defface mvc-face-animation-timer-2
-  '((((type x w32 mac) (class color)) (:foreground "#007f00" :background "lightgray" :bold t)))
+  '((((type x w32 mac ns) (class color)) (:foreground "#007f00" :background "lightgray" :bold t)))
   "animation timer 2"
   :group 'mvc-faces)
 (defface mvc-face-animation-timer-3
-  '((((type x w32 mac) (class color)) (:foreground "#003f00" :background "lightgray" :bold t)))
+  '((((type x w32 mac ns) (class color)) (:foreground "#003f00" :background "lightgray" :bold t)))
   "animation timer 3"
   :group 'mvc-faces)
 (defface mvc-face-animation-timer-4
-  '((((type x w32 mac) (class color)) (:foreground "#000f0f" :background "lightgray" :bold t)))
+  '((((type x w32 mac ns) (class color)) (:foreground "#000f0f" :background "lightgray" :bold t)))
   "animation timer 4"
   :group 'mvc-faces)
 (defface mvc-face-animation-timer-5
-  '((((type x w32 mac) (class color)) (:foreground "#00007f" :background "lightgray" :bold t)))
+  '((((type x w32 mac ns) (class color)) (:foreground "#00007f" :background "lightgray" :bold t)))
   "animation timer 5"
   :group 'mvc-faces)
 (defface mvc-face-animation-timer-6
-  '((((type x w32 mac) (class color)) (:foreground "#0000ff" :background "lightgray" :bold t)))
+  '((((type x w32 mac ns) (class color)) (:foreground "#0000ff" :background "lightgray" :bold t)))
   "animation timer 6"
   :group 'mvc-faces)
 (defface mvc-face-animation-timer-7
-  '((((type x w32 mac) (class color)) (:foreground "#00007f" :background "lightgray" :bold t)))
+  '((((type x w32 mac ns) (class color)) (:foreground "#00007f" :background "lightgray" :bold t)))
   "animation timer 7"
   :group 'mvc-faces)
 
 (defface mvc-face-log-revision
-  '((((type x w32 mac) (class color) (background light)) (:foreground "#00007f" :background "lightgray" :bold t :underline t))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "#00007f" :background "gray" :bold t :underline t)))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "#00007f" :background "lightgray" :bold t :underline t))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "#00007f" :background "gray" :bold t :underline t)))
   "log revision"
   :group 'mvc-faces)
 
 (defface mvc-face-especial-path
-  '((((type x w32 mac) (class color) (background light)) (:foreground "darkblue" :bold t))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "blue" :bold t)))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "darkblue" :bold t))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "blue" :bold t)))
   "especial path"
   :group 'mvc-faces)
 
 (defface mvc-face-branch-default
-  '((((type x w32 mac) (class color) (background light)) (:foreground "darkblue" :background "tan" :bold t))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "blue" :background "tan" :bold t)))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "darkblue" :background "tan" :bold t))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "blue" :background "tan" :bold t)))
   "branch default"
   :group 'mvc-faces)
 (defface mvc-face-branch-master
-  '((((type x w32 mac) (class color) (background light)) (:foreground "white" :background "red3" :bold t))
-    (((type x w32 mac) (class color) (background dark)) (:foreground "white" :background "red3" :bold t)))
+  '((((type x w32 mac ns) (class color) (background light)) (:foreground "white" :background "red3" :bold t))
+    (((type x w32 mac ns) (class color) (background dark)) (:foreground "white" :background "red3" :bold t)))
   "branch default"
   :group 'mvc-faces)
 
