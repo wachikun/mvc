@@ -461,7 +461,7 @@
 	       (cons (const cvs) (repeat string)))
   :group 'mvc-variables)
 
-(defcustom mvc-default-cheat-sheet-directory "~/.emacs.d/"
+(defcustom mvc-default-cheat-sheet-directory "~/.emacs.d/.mvc.cheat-sheet/"
   "mvc-default-cheat-sheet-directory"
   :type 'string
   :group 'mvc-variables)
