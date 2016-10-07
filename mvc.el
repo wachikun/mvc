@@ -461,7 +461,7 @@
 	       (cons (const cvs) (repeat string)))
   :group 'mvc-variables)
 
-(defcustom mvc-default-cheat-sheet-directory "~/.emacs.d/"
+(defcustom mvc-default-cheat-sheet-directory "~/.emacs.d/.mvc.cheat-sheet/"
   "mvc-default-cheat-sheet-directory"
   :type 'string
   :group 'mvc-variables)
@@ -1638,8 +1638,8 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (with-current-buffer mvc-l-process-status-buffer
       (setq mvc-l-status-process-process nil)
       (mvc-status-update-header-line))
-    (cond ((or (string= event "finished\n")
-	       (string= event "exited abnormally with code"))
+    (cond ((or (string-match "^finished" event)
+	       (string-match "^exited abnormally with code" event))
 	   (goto-char (point-min))
 	   (when (get-buffer-window (current-buffer))
 	     (set-window-point (get-buffer-window (current-buffer)) (point)))
@@ -3644,8 +3644,8 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
   (with-current-buffer (process-buffer process)
     (when (string= " command async" mode-line-process)
       (setq mode-line-process nil))
-    (cond ((or (string= event "finished\n")
-	       (string= event "exited abnormally with code"))
+    (cond ((or (string-match "^finished" event)
+	       (string-match "^exited abnormally with code" event))
 	   (goto-char (point-min))
 	   (with-current-buffer local-status-buffer
 	     (mvc-status-mode-status))
