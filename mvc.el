@@ -756,6 +756,7 @@
 (defvar mvc-cheat-sheet-mode-map (make-sparse-keymap))
 
 (define-key mvc-cheat-sheet-mode-map "\C-c\C-c" 'mvc-cheat-sheet-mode-done)
+(define-key mvc-cheat-sheet-mode-map "\M-;" 'mvc-cheat-sheet-mode-comment)
 
 
 ;;; mvc utilities
@@ -3638,6 +3639,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
   (setq major-mode 'mvc-cheat-sheet-mode)
 
   (set (make-local-variable 'mvc-l-cheat-sheet-mode-status-buffer) status-buffer)
+  (set (make-local-variable 'comment-start) "#")
 
   (run-hooks 'mvc-cheat-sheet-mode-hook))
 
@@ -3769,6 +3771,13 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 		(set-process-sentinel process 'mvc-cheat-sheet-mode-done-process-sentinel)
 		(switch-to-buffer-other-window async-process-buffer-name))))
 	(message "canceled!")))))
+
+(defun mvc-cheat-sheet-mode-comment ()
+  "mvc-cheat-sheet-mode-comment"
+  (interactive)
+  (if mark-active
+      (comment-or-uncomment-region (region-beginning) (region-end))
+    (comment-or-uncomment-region (line-beginning-position) (line-end-position))))
 
 
 
