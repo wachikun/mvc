@@ -992,10 +992,15 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 			     (list 'face face)))
     (insert string)))
 
-(defun mvc-get-mvc-default-option-list ()
-  (if mvc-l-status-strict-p
-      mvc-mvc-default-option-list-strict
-    mvc-mvc-default-option-list-fast))
+(defun mvc-get-mvc-default-option-list (&optional status-buffer)
+  (if status-buffer
+      (with-current-buffer status-buffer
+	(if mvc-l-status-strict-p
+	    mvc-mvc-default-option-list-strict
+	  mvc-mvc-default-option-list-fast))
+    (if mvc-l-status-strict-p
+	mvc-mvc-default-option-list-strict
+      mvc-mvc-default-option-list-fast)))
 
 
 
@@ -1979,7 +1984,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
 	      ;; $B$3$3$K(B insert $B$7$?$$$N$G(B call-process $B$rD>@\;HMQ!#(B
 	      (apply 'call-process mvc-program-name nil t nil (append
-							       (cdr (assq program (cdr (assq 'log (mvc-get-mvc-default-option-list)))))
+							       (cdr (assq program (cdr (assq 'log (mvc-get-mvc-default-option-list status-buffer)))))
 							       (list "--" program-name)
 							       log-option
 							       (list ".")))
