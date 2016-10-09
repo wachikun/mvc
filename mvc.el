@@ -71,7 +71,7 @@
   :type 'boolean
   :group 'mvc-variables)
 
-(defcustom mvc-default-use-button nil
+(defcustom mvc-default-use-button t
   "mvc-default-use-button"
   :type 'boolean
   :group 'mvc-variables)
