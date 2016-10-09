@@ -240,59 +240,52 @@
 				  (cons (const cvs) (repeat string)))))
   :group 'mvc-variables)
 
-(defcustom mvc-mvc-default-option-list '((diff . ((mercurial . nil)
-						  (git . nil)
-						  (bazaar . nil)
-						  (subversion . nil)
-						  (cvs . nil)))
-					 (add . ((mercurial . nil)
-						 (git . nil)
-						 (bazaar . nil)
-						 (subversion . nil)
-						 (cvs . nil)))
-					 (annotate . ((mercurial . nil)
-						      (git . nil)
-						      (bazaar . nil)
-						      (subversion . nil)
-						      (cvs . nil)))
-					 (revert . ((mercurial . nil)
-						    (git . nil)
-						    (bazaar . nil)
-						    (subversion . nil)
-						    (cvs . nil)))
-					 (remove . ((mercurial . nil)
-						    (git . nil)
-						    (bazaar . nil)
-						    (subversion . nil)
-						    (cvs . nil)))
-					 (rename . ((mercurial . nil)
-						    (git . nil)
-						    (bazaar . nil)
-						    (subversion . nil)
-						    (cvs . nil)))
-					 (commit . ((mercurial . nil)
-						    (git . nil)
-						    (bazaar . nil)
-						    (subversion . nil)
-						    (cvs . nil)))
-					 (status . ((mercurial . nil)
-						    (git . nil)
-						    (bazaar . nil)
-						    (subversion . nil)
-						    (cvs . nil)))
-					 ;; $B%M%C%H%o!<%/%I%i%$%V$J$I$G(B repository/working directory $B$,CY$$>l9g!"(B
-					 ;; $B0J2<$N%*%W%7%g%s$rIU$1$k$H7`E*$K%l%9%]%s%9$,2~A1$9$k$3$H$,$"$j$^$9!#(B
-					 ;; (status . ((mercurial . ("--disable-search-unknown"))
-					 ;; 	    (git . ("--disable-search-unknown"))
-					 ;; 	    (bazaar . ("--disable-search-unknown"))
-					 ;; 	    (subversion . ("--disable-search-unknown"))
-					 ;; 	    (cvs . ("--disable-search-unknown"))))
-					 (log . ((mercurial . nil)
-						 (git . nil)
-						 (bazaar . nil)
-						 (subversion . nil)
-						 (cvs . nil))))
-  "mvc-mvc-default-option-list"
+(defcustom mvc-mvc-default-option-list-strict '((diff . ((mercurial . nil)
+							 (git . nil)
+							 (bazaar . nil)
+							 (subversion . nil)
+							 (cvs . nil)))
+						(add . ((mercurial . nil)
+							(git . nil)
+							(bazaar . nil)
+							(subversion . nil)
+							(cvs . nil)))
+						(annotate . ((mercurial . nil)
+							     (git . nil)
+							     (bazaar . nil)
+							     (subversion . nil)
+							     (cvs . nil)))
+						(revert . ((mercurial . nil)
+							   (git . nil)
+							   (bazaar . nil)
+							   (subversion . nil)
+							   (cvs . nil)))
+						(remove . ((mercurial . nil)
+							   (git . nil)
+							   (bazaar . nil)
+							   (subversion . nil)
+							   (cvs . nil)))
+						(rename . ((mercurial . nil)
+							   (git . nil)
+							   (bazaar . nil)
+							   (subversion . nil)
+							   (cvs . nil)))
+						(commit . ((mercurial . nil)
+							   (git . nil)
+							   (bazaar . nil)
+							   (subversion . nil)
+							   (cvs . nil)))
+						(status . ((mercurial . nil)
+							   (git . nil)
+							   (bazaar . nil)
+							   (subversion . nil)
+							   (cvs . nil)))
+						(log . ((mercurial . nil)
+							(git . nil)
+							(bazaar . nil)
+							(subversion . nil)
+							(cvs . nil))))
+  "mvc-mvc-default-option-list-strict"
   :type '(list (cons (const diff) (list
 				   (cons (const mercurial) (repeat string))
 				   (cons (const git) (repeat string))
@@ -347,6 +340,115 @@
 				  (cons (const bazaar) (repeat string))
 				  (cons (const subversion) (repeat string))
 				  (cons (const cvs) (repeat string)))))
+  :group 'mvc-variables)
+
+(defcustom mvc-mvc-default-option-list-fast '((diff . ((mercurial . nil)
+						       (git . nil)
+						       (bazaar . nil)
+						       (subversion . nil)
+						       (cvs . nil)))
+					      (add . ((mercurial . nil)
+						      (git . nil)
+						      (bazaar . nil)
+						      (subversion . nil)
+						      (cvs . nil)))
+					      (annotate . ((mercurial . nil)
+							   (git . nil)
+							   (bazaar . nil)
+							   (subversion . nil)
+							   (cvs . nil)))
+					      (revert . ((mercurial . nil)
+							 (git . nil)
+							 (bazaar . nil)
+							 (subversion . nil)
+							 (cvs . nil)))
+					      (remove . ((mercurial . nil)
+							 (git . nil)
+							 (bazaar . nil)
+							 (subversion . nil)
+							 (cvs . nil)))
+					      (rename . ((mercurial . nil)
+							 (git . nil)
+							 (bazaar . nil)
+							 (subversion . nil)
+							 (cvs . nil)))
+					      (commit . ((mercurial . nil)
+							 (git . nil)
+							 (bazaar . nil)
+							 (subversion . nil)
+							 (cvs . nil)))
+					      ;; $B5pBg$J%W%m%8%'%/%H$d!"%M%C%H%o!<%/%I%i%$%V$J$I$G(B repository/working directory $B$,CY$$>l9g!"(B
+					      ;; $B0J2<$N%*%W%7%g%s$rIU$1$k$H7`E*$K%l%9%]%s%9$,2~A1$9$k$3$H$,$"$j$^$9!#(B
+					      (status . ((mercurial . ("--disable-search-unknown" "--disable-search-unmodified"))
+							 (git . ("--disable-search-unknown" "--disable-search-unmodified"))
+							 (bazaar . ("--disable-search-unknown" "--disable-search-unmodified"))
+							 (subversion . ("--disable-search-unknown" "--disable-search-unmodified"))
+							 (cvs . ("--disable-search-unknown" "--disable-search-unmodified"))))
+					      (log . ((mercurial . nil)
+						      (git . nil)
+						      (bazaar . nil)
+						      (subversion . nil)
+						      (cvs . nil))))
+  "mvc-mvc-default-option-list-fast"
+  :type '(list (cons (const diff) (list
+				   (cons (const mercurial) (repeat string))
+				   (cons (const git) (repeat string))
+				   (cons (const bazaar) (repeat string))
+				   (cons (const subversion) (repeat string))
+				   (cons (const cvs) (repeat string))))
+	       (cons (const add) (list
+				  (cons (const mercurial) (repeat string))
+				  (cons (const git) (repeat string))
+				  (cons (const bazaar) (repeat string))
+				  (cons (const subversion) (repeat string))
+				  (cons (const cvs) (repeat string))))
+	       (cons (const annotate) (list
+				       (cons (const mercurial) (repeat string))
+				       (cons (const git) (repeat string))
+				       (cons (const bazaar) (repeat string))
+				       (cons (const subversion) (repeat string))
+				       (cons (const cvs) (repeat string))))
+	       (cons (const revert) (list
+				     (cons (const mercurial) (repeat string))
+				     (cons (const git) (repeat string))
+				     (cons (const bazaar) (repeat string))
+				     (cons (const subversion) (repeat string))
+				     (cons (const cvs) (repeat string))))
+	       (cons (const remove) (list
+				     (cons (const mercurial) (repeat string))
+				     (cons (const git) (repeat string))
+				     (cons (const bazaar) (repeat string))
+				     (cons (const subversion) (repeat string))
+				     (cons (const cvs) (repeat string))))
+	       (cons (const rename) (list
+				     (cons (const mercurial) (repeat string))
+				     (cons (const git) (repeat string))
+				     (cons (const bazaar) (repeat string))
+				     (cons (const subversion) (repeat string))
+				     (cons (const cvs) (repeat string))))
+	       (cons (const commit) (list
+				     (cons (const mercurial) (repeat string))
+				     (cons (const git) (repeat string))
+				     (cons (const bazaar) (repeat string))
+				     (cons (const subversion) (repeat string))
+				     (cons (const cvs) (repeat string))))
+	       (cons (const status) (list
+				     (cons (const mercurial) (repeat string))
+				     (cons (const git) (repeat string))
+				     (cons (const bazaar) (repeat string))
+				     (cons (const subversion) (repeat string))
+				     (cons (const cvs) (repeat string))))
+	       (cons (const log) (list
+				  (cons (const mercurial) (repeat string))
+				  (cons (const git) (repeat string))
+				  (cons (const bazaar) (repeat string))
+				  (cons (const subversion) (repeat string))
+				  (cons (const cvs) (repeat string)))))
+  :group 'mvc-variables)
+
+(defcustom mvc-mvc-default-status-strict-p t
+  "mvc-mvc-default-status-strict-p"
+  :type 'boolean
   :group 'mvc-variables)
 
 (defcustom mvc-default-log-limit "32"
@@ -890,6 +992,11 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 			     (list 'face face)))
     (insert string)))
 
+(defun mvc-get-mvc-default-option-list ()
+  (if mvc-l-status-strict-p
+      mvc-mvc-default-option-list-strict
+    mvc-mvc-default-option-list-fast))
+
 
 
 
@@ -1281,6 +1388,12 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 (defun mvc-status-draw-footer ()
   (mvc-insert-with-face (concat "information: " mvc-l-status-mvcstatus-header-information "\n")
 			'mvc-face-status-footer)
+  (mvc-status-insert-toggle-button mvc-l-status-strict-p
+				   "status strict"
+				   "status  fast "
+				   'mvc-status-mode-toggle-strict-or-fast)
+  (mvc-insert-with-face " "
+			'mvc-face-status-footer)
   (mvc-status-insert-toggle-button (not mvc-l-status-command-no-argument-p)
 				   "command(log/commit) argument ON"
 				   "command(log/commit) NO ARGUMENT"
@@ -1619,13 +1732,13 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 			(mvc-process nil display-p t
 				     status-buffer (cdr (assq 'process-temporary mvc-l-status-buffer-name-list))
 				     (append (list mvc-program-name)
-					     (cdr (assq program (cdr (assq command-key mvc-mvc-default-option-list))))
+					     (cdr (assq program (cdr (assq command-key (mvc-get-mvc-default-option-list)))))
 					     (list "--" program-name)
 					     command-list option-list file-name-list tail-file-list))
 		      (mvc-process async-callback display-p nil
 				   status-buffer process-buffer-name
 				   (append (list mvc-program-name)
-					   (cdr (assq program (cdr (assq command-key mvc-mvc-default-option-list))))
+					   (cdr (assq program (cdr (assq command-key (mvc-get-mvc-default-option-list)))))
 					   (list "--" program-name)
 					   command-list option-list file-name-list tail-file-list)
 				   program-name command-name async-callback))
@@ -1728,7 +1841,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
       ;; $B$3$3$@$1B>$H$O0[$J$j!"(B temporary $B$r(B result $B$NL>A0$KJQ99$7$F$$$k!#(B
       (mvc-call-process-and-set-buffer-temporary status-buffer
 						 mvc-l-status-mvc-program-name
-						 (append (cdr (assq mvc-l-status-program (cdr (assq 'diff mvc-mvc-default-option-list))))
+						 (append (cdr (assq mvc-l-status-program (cdr (assq 'diff (mvc-get-mvc-default-option-list)))))
 							 (list "--" mvc-l-status-program-name "cat" file-name)))
       (rename-buffer buffer-a-name))
     (ediff-buffers buffer-a-name (find-file file-name))))
@@ -1866,7 +1979,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
 	      ;; $B$3$3$K(B insert $B$7$?$$$N$G(B call-process $B$rD>@\;HMQ!#(B
 	      (apply 'call-process mvc-program-name nil t nil (append
-							       (cdr (assq program (cdr (assq 'log mvc-mvc-default-option-list))))
+							       (cdr (assq program (cdr (assq 'log (mvc-get-mvc-default-option-list)))))
 							       (list "--" program-name)
 							       log-option
 							       (list ".")))
@@ -2059,7 +2172,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 			   (current-buffer)
 			   async-process-buffer-name
 			   (append (list mvc-l-status-mvc-program-name)
-				   (cdr (assq mvc-l-status-program (cdr (assq 'status mvc-mvc-default-option-list))))
+				   (cdr (assq mvc-l-status-program (cdr (assq 'status (mvc-get-mvc-default-option-list)))))
 				   (list "--" mvc-l-status-program-name)
 				   option-list)
 			   mvc-l-status-program-name "status"
@@ -2097,7 +2210,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 		     (current-buffer)
 		     async-process-buffer-name
 		     (append (list mvc-l-status-mvc-program-name)
-			     (cdr (assq mvc-l-status-program (cdr (assq 'update mvc-mvc-default-option-list))))
+			     (cdr (assq mvc-l-status-program (cdr (assq 'update (mvc-get-mvc-default-option-list)))))
 			     (list "--" mvc-l-status-program-name "update"))
 		     mvc-l-status-program-name "update"
 		     (mvc-async-update-lambda))))))
@@ -2134,7 +2247,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 		       (current-buffer)
 		       async-process-buffer-name
 		       (append (list mvc-l-status-mvc-program-name)
-			       (cdr (assq mvc-l-status-program (cdr (assq command mvc-mvc-default-option-list))))
+			       (cdr (assq mvc-l-status-program (cdr (assq command (mvc-get-mvc-default-option-list)))))
 			       (list "--" mvc-l-status-program-name (nth 0 command-list)))
 		       mvc-l-status-program-name (nth 0 command-list)
 		       (mvc-async-push-pull-core-lambda))))
@@ -2272,6 +2385,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (set (make-local-variable 'mvc-l-status-program-name) (cdr (assq mvc-l-status-program mvc-program-name)))
     (set (make-local-variable 'mvc-l-status-mvc-program-name) mvc-mvc-program-name)
     (set (make-local-variable 'mvc-l-status-command-no-argument-p) (eq 'git initial-program))
+    (set (make-local-variable 'mvc-l-status-strict-p) mvc-mvc-default-status-strict-p)
     (let ((base (concat "*mvc-"
 			(cdr (assq mvc-l-status-program mvc-program-display-name)))))
       (set (make-local-variable 'mvc-l-status-buffer-name-list)
@@ -2552,6 +2666,15 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
 	  (mvc-status-draw-with-save-load-point))
       (message "recursive control unsupported"))))
+
+(defun mvc-status-mode-toggle-strict-or-fast ()
+  "toggle strict or fast"
+  (interactive)
+
+  (if (mvc-status-async-p)
+      (message mvc-message-process-already-running)
+    (setq mvc-l-status-strict-p (not mvc-l-status-strict-p))
+    (mvc-status-draw-with-save-load-point)))
 
 (defun mvc-status-mode-toggle-command-no-argument ()
   "toggle command no argument recursive"

@@ -40,6 +40,7 @@ my $global_exitcode;
 my @global_ignore_regexp;
 my %global_options;
 GetOptions("program=s" => \$global_options{'program'},
+	   "disable-search-unmodified" => \$global_options{'disable-search-unmodified'},
 	   "disable-search-unknown" => \$global_options{'disable-search-unknown'},
 	   "disable-ignore-repository" => \$global_options{'disable-ignore-repository'},
 	   "get-ignore" => \$global_options{'get-ignore'},
@@ -267,7 +268,10 @@ sub get_git_status($@) {
     my $program = shift @_;
     print_status_progress("get cached");
     # @cached は staged か管理下のファイルが含まれる。
-    my @cached = get_core($program, 'ls-files', '--cached', @_);
+    my @cached;
+    unless (defined($global_options{'disable-search-unmodified'})) {
+	@cached = get_core($program, 'ls-files', '--cached', @_);
+    }
     print_status_progress("get others");
     my @ignore = get_core($program, 'ls-files', '--others', '--ignored', '--exclude-standard', @_);
     my %ignore;
