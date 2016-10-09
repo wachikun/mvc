@@ -28,7 +28,7 @@
 
 ;;; Code:
 
-(defvar mvc-version-string "mvc version 0.2")
+(defvar mvc-version-string "mvc version 0.3")
 
 (defun mvc-version ()
   (interactive)

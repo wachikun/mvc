@@ -2,7 +2,7 @@
 #
 # mvc -- M(eta|ulti|enu) Version Control
 # 
-# Copyright (C) 2013, 2014 Tadashi Watanabe <wac@umiushi.org>
+# Copyright (C) 2013-2016 Tadashi Watanabe <wac@umiushi.org>
 # 
 # Author: Tadashi Watanabe <wac@umiushi.org>
 # Maintainer: Tadashi Watanabe <wac@umiushi.org>
@@ -35,7 +35,7 @@ use warnings;
 use File::Find;
 use Getopt::Long;
 
-my $global_mvc_version = 'mvc version 0.2';
+my $global_mvc_version = 'mvc version 0.3';
 my $global_exitcode;
 my @global_ignore_regexp;
 my %global_options;
