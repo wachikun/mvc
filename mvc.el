@@ -531,18 +531,23 @@
 		  "%program tag"
 		  "%program tag --rev="
 		  "echo %files"))
-    (git . ("%program branch"
+    (git . ("gitk --all"
+	    "%program branch"
 	    "%program branch -r"
+	    "%program branch -a"
+	    "%program show-branch"
 	    "%program stash list"
 	    "%program status"
 	    "%program checkout "
-	    "%program log --stat -n 8 "
+	    "#@no-return-window"
+	    "%program log --graph --decorate=full --stat -n 8 "
 	    "%program show %files"
 	    "%program checkout %files"
 	    "%program commit --file=%commitlog"
 	    "%program commit -m 'merge'"
+	    "%program rebase -i"
 	    "%program reset --soft "
-	    "%program reset --hard "))
+	    "%program reset --hard FETCH_HEAD"))
     (bazaar . ("echo %program %files"))
     (subversion . ("echo %program %files"))
     (cvs . ("")))
