@@ -748,6 +748,7 @@
 (defconst mvc-mode-name-especial "mvc especial")
 (defconst mvc-mode-name-especial-commit "mvc especial-commit")
 (defconst mvc-mode-name-cheat-sheet "mvc cheat-sheet")
+(defconst mvc-mode-name-cheat-sheet-process "mvc cheat-sheet-process")
 
 (defconst mvc-running-header-decoration-0 "**")
 (defconst mvc-running-header-decoration-1 "--")
@@ -813,6 +814,8 @@
 (define-key mvc-status-mode-map (kbd "M-C-=") 'mvc-status-mode-ediff-only-current)
 (define-key mvc-status-mode-map "S" 'mvc-status-mode-especial)
 (define-key mvc-status-mode-map "!" 'mvc-status-mode-cheat-sheet)
+(define-key mvc-status-mode-map "\C-g" 'mvc-status-mode-cancel-process)
+(define-key mvc-status-mode-map "\C-c\C-k" 'mvc-status-mode-cancel-process)
 
 
 ;;; mvc-commitlog-mode-map
@@ -857,8 +860,20 @@
 
 (defvar mvc-cheat-sheet-mode-map (make-sparse-keymap))
 
-(define-key mvc-cheat-sheet-mode-map "\C-c\C-c" 'mvc-cheat-sheet-mode-done)
+(define-key mvc-cheat-sheet-mode-map "\C-c\C-c" 'mvc-cheat-sheet-mode-run)
 (define-key mvc-cheat-sheet-mode-map "\M-;" 'mvc-cheat-sheet-mode-comment)
+(define-key mvc-cheat-sheet-mode-map "\C-g" 'mvc-cheat-sheet-mode-cancel-process)
+(define-key mvc-cheat-sheet-mode-map "\C-c\C-k" 'mvc-cheat-sheet-mode-cancel-process)
+
+
+;;; mvc-cheat-sheet-process-mode-map
+
+(defvar mvc-cheat-sheet-process-mode-map (make-sparse-keymap))
+
+(define-key mvc-cheat-sheet-process-mode-map "\C-g" 'mvc-cheat-sheet-process-mode-cancel-process)
+(define-key mvc-cheat-sheet-process-mode-map "\C-c\C-k" 'mvc-cheat-sheet-process-mode-cancel-process)
+
+
 
 
 ;;; mvc utilities
@@ -3018,6 +3033,12 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	  (t
 	   (message "UNKNOWN PROGRAM!")))))
 
+(defun mvc-status-mode-cancel-process ()
+  "cancel-process"
+  (interactive)
+  (when mvc-l-status-process-process
+    (delete-process mvc-l-status-process-process)))
+
 
 
 
@@ -3781,7 +3802,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
   (run-hooks 'mvc-cheat-sheet-mode-hook))
 
-(defun mvc-cheat-sheet-mode-done-process-sentinel (process event)
+(defun mvc-cheat-sheet-mode-run-process-sentinel (process event)
   (with-current-buffer (process-buffer process)
     (when (string= " command async" mode-line-process)
       (setq mode-line-process nil))
@@ -3795,7 +3816,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	  (t
 	   (message (concat "process error error:" event))))))
 
-(defun mvc-cheat-sheet-mode-done-commitlog-mode-done-callback-commit ()
+(defun mvc-cheat-sheet-mode-run-commitlog-mode-done-callback-commit ()
   (let ((commitlog-buffer (current-buffer))
 	async-p
 	command
@@ -3836,11 +3857,11 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	    (set (make-local-variable 'local-return-window) backup-window)
 	    (set (make-local-variable 'local-process) process))
 
-	  (set-process-sentinel process 'mvc-cheat-sheet-mode-done-process-sentinel)
+	  (set-process-sentinel process 'mvc-cheat-sheet-mode-run-process-sentinel)
 	  (switch-to-buffer-other-window async-process-buffer-name))))))
 
-(defun mvc-cheat-sheet-mode-done ()
-  "mvc-cheat-sheet-mode-done"
+(defun mvc-cheat-sheet-mode-run ()
+  "mvc-cheat-sheet-mode-run"
   (interactive)
 
   (let ((special "")
@@ -3873,7 +3894,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	  (setq command (replace-match (nth 0 (mvc-command-get-current-or-mark-file-name-list t)) t nil command)))))
 
     (if (string-match "^[ \t]*#" command)
-	(message "commant line!")
+	(message "comment line!")
       (if (yes-or-no-p (concat "run \"" command "\" ?"))
 	  (with-current-buffer mvc-l-cheat-sheet-mode-status-buffer
 	    (let ((status-buffer (current-buffer))
@@ -3891,11 +3912,16 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 							   (backup-window . ,backup-window)))
 		    (switch-to-buffer-other-window (get-buffer-create (cdr (assq 'commitlog mvc-l-status-buffer-name-list))))
 		    (mvc-commitlog-mode status-buffer (lambda ()
-							(mvc-cheat-sheet-mode-done-commitlog-mode-done-callback-commit))))
+							(mvc-cheat-sheet-mode-run-commitlog-mode-done-callback-commit))))
 		(setq async-process-buffer-name (cdr (assq 'process-command mvc-l-status-buffer-name-list)))
 		(with-current-buffer (get-buffer-create async-process-buffer-name)
+		  (setq buffer-read-only nil)
 		  (erase-buffer)
+
 		  (kill-all-local-variables)
+		  (use-local-map mvc-cheat-sheet-process-mode-map)
+		  (setq mode-name mvc-mode-name-cheat-sheet-process)
+		  (setq major-mode 'mvc-cheat-sheet-mode-process)
 
 		  (unless mode-line-process
 		    (setq mode-line-process " command async"))
@@ -3906,7 +3932,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 		  (set (make-local-variable 'local-return-window) backup-window)
 		  (set (make-local-variable 'local-process) process))
 
-		(set-process-sentinel process 'mvc-cheat-sheet-mode-done-process-sentinel)
+		(set-process-sentinel process 'mvc-cheat-sheet-mode-run-process-sentinel)
 		(switch-to-buffer-other-window async-process-buffer-name))))
 	(message "canceled!")))))
 
@@ -3916,6 +3942,20 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
   (if mark-active
       (comment-or-uncomment-region (region-beginning) (region-end))
     (comment-or-uncomment-region (line-beginning-position) (line-end-position))))
+
+(defun mvc-cheat-sheet-mode-cancel-process ()
+  (interactive)
+  (with-current-buffer mvc-l-cheat-sheet-mode-status-buffer
+    (let ((async-process-buffer-name (cdr (assq 'process-command mvc-l-status-buffer-name-list))))
+      (when (and async-process-buffer-name
+		 (get-buffer async-process-buffer-name))
+	(with-current-buffer (get-buffer async-process-buffer-name)
+	  (mvc-cheat-sheet-process-mode-cancel-process))))))
+
+(defun mvc-cheat-sheet-process-mode-cancel-process ()
+  (interactive)
+  (when local-process
+    (delete-process local-process)))
 
 
 
