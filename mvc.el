@@ -3861,26 +3861,66 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	  (set-process-sentinel process 'mvc-cheat-sheet-mode-run-process-sentinel)
 	  (switch-to-buffer-other-window async-process-buffer-name))))))
 
+;; #@*-begin
+;; #@*-end
+;; $B$G0O$^$l$F$$$l$P(B ("#@*-begin" "command") $B$N%j%9%H$r!"0O$^$l$F$$$J$1$l$P(B nil $B$rJV$7$^$9!#(B
+(defun mvc-cheat-sheet-mode-run-get-region-special-begin-and-command ()
+  (let (special-begin special-end command-start command)
+    (save-excursion
+      (when (string-match "^#@.+-begin$" (buffer-substring (line-beginning-position) (line-end-position)))
+	(end-of-line))
+      (when (re-search-backward "^#@" nil t)
+	(setq special-begin (buffer-substring (line-beginning-position) (line-end-position)))
+	(when (string-match ".-begin$" special-begin)
+	  (forward-line 1)
+	  (setq command-start (point))
+	  (when (re-search-forward "^#@" nil t)
+	    (setq special-end (buffer-substring (line-beginning-position) (line-end-position)))
+	    (when (string-match ".-end$" special-end)
+	      (beginning-of-line)
+	      (setq command (buffer-substring command-start (point)))
+	      (list special-begin command))))))))
+
+;; $B8=:_$N9T$,(B #@ $B$N<!$+(B #@ $B$HF1$8$J$i$P(B ("#@*" "command") $B$N%j%9%H$r!"$=$&$G$J$1$l$P(B nil $B$rJV$7$^$9!#(B
+(defun mvc-cheat-sheet-mode-run-get-special-and-command ()
+  (let (tmp special command)
+      (save-excursion
+	(setq tmp (buffer-substring (line-beginning-position) (line-end-position)))
+	(if (string-match "^#@" tmp)
+	    (progn
+	      (setq special tmp)
+	      (forward-line 1)
+	      (setq command (buffer-substring (line-beginning-position) (line-end-position)))
+	      (list special command))
+	  (forward-line -1)
+	  (setq special (buffer-substring (line-beginning-position) (line-end-position)))
+	  (when (and (string-match "^#@" special)
+		     (not (string-match ".-end$" special)))
+	    (setq command tmp)
+	    (list special command))))))
+
 (defun mvc-cheat-sheet-mode-run ()
   "mvc-cheat-sheet-mode-run"
   (interactive)
 
   (let ((special "")
 	command
-	line-start
-	eval-p)
-    (save-excursion
-      (beginning-of-line)
-      (setq line-start (point))
-      (end-of-line)
-      (setq command (buffer-substring line-start (point)))
-      (forward-line -1)
-      (setq line-start (point))
-      (end-of-line)
-      (setq special (buffer-substring line-start (point)))
-      (unless (string-match "^#@" special)
-	(setq special "")))
-    (setq eval-p (string-match "^#@elisp-eval$" special))
+	special-list
+	eval-p
+	eval-region-list)
+    (setq eval-region-list (mvc-cheat-sheet-mode-run-get-region-special-begin-and-command))
+    (if eval-region-list
+	(progn
+	  (setq eval-p t)
+	  (setq special (nth 0 eval-region-list))
+	  (setq command (nth 1 eval-region-list)))
+      (setq special-list (mvc-cheat-sheet-mode-run-get-special-and-command))
+      (if special-list
+	  (progn
+	    (setq special (nth 0 special-list))
+	    (setq command (nth 1 special-list)))
+	(setq command (buffer-substring (line-beginning-position) (line-end-position))))
+      (setq eval-p (string-match "^#@elisp-eval$" special)))
 
     (with-current-buffer mvc-l-cheat-sheet-mode-status-buffer
       (let ((concat-file-name-list (mapconcat #'(lambda (a)
@@ -3947,8 +3987,8 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 				    (string-match "\s*[%a-z]+\s+log" command))
 				(setq local-mode "mvc-log-mode"))))
 		       (set-process-sentinel process 'mvc-cheat-sheet-mode-run-process-sentinel)
-		       (switch-to-buffer-other-window async-process-buffer-name)))))
-	  (message "canceled!"))))))
+		       (switch-to-buffer-other-window async-process-buffer-name))))))
+	(message "canceled!")))))
 
 (defun mvc-cheat-sheet-mode-comment ()
   "mvc-cheat-sheet-mode-comment"
