@@ -116,9 +116,9 @@
   :type '(list symbol symbol symbol symbol symbol)
   :group 'mvc-variables)
 
-(defcustom mvc-default-log-face-limit 20000
-  "mvc-default-log-face-limit"
-  :type '(integer)
+(defcustom mvc-default-log-face-limit-float-time 0.5
+  "mvc-default-log-face-limit-float-time"
+  :type 'float
   :group 'mvc-variables)
 
 (defcustom mvc-default-diff-option-list '((mercurial . "--rev=")
@@ -3155,15 +3155,16 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
   (set (make-local-variable 'mvc-l-log-mode-buffer-name-status) (buffer-name status-buffer))
 
-  (save-excursion
-    (goto-char (point-min))
-    (while (and (mvc-log-mode-match-revision-line nil)
-		(< (point) mvc-default-log-face-limit))
-      (beginning-of-line)
-      (let ((start (point)))
-	(forward-line)
-	(backward-char 1)
-	(set-text-properties start (point) (list 'face 'mvc-face-log-revision)))))
+  (let ((start-float-time (float-time)))
+    (save-excursion
+      (goto-char (point-min))
+      (while (and (mvc-log-mode-match-revision-line nil)
+		  (< (- (float-time) start-float-time) mvc-default-log-face-limit-float-time))
+	(beginning-of-line)
+	(let ((start (point)))
+	  (forward-line)
+	  (backward-char 1)
+	  (set-text-properties start (point) (list 'face 'mvc-face-log-revision))))))
 
   (setq buffer-read-only t)
 
