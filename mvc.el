@@ -2204,6 +2204,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	  (with-current-buffer status-buffer
 	    (setq mvc-l-status-files files)
 	    (setq mvc-l-status-branch-name (mvc-status-mode-get-branch-name))
+	    (setq mvc-l-status-timer-last-mode-line-string "")
 	    (mvc-status-update-header-line)))))
     ;; read only $B$K$7$?8e!"IA2h$7$F$*$7$^$$!#(B
     (setq buffer-read-only t)
