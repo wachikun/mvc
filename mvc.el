@@ -179,7 +179,7 @@
 						(subversion . nil)
 						(cvs . nil)))
 				     (log . ((mercurial . ("--verbose"))
-					     (git . ("--stat" "--graph" "--decorate=full"))
+					     (git . ("--stat" "--stat-count=32" "--graph" "--decorate=full"))
 					     (bazaar . ("--verbose"))
 					     (subversion . ("--verbose"))
 					     (cvs . nil))))
