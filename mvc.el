@@ -787,6 +787,8 @@
 (define-key mvc-status-mode-map "\C-i" 'mvc-status-mode-next-button)
 (define-key mvc-status-mode-map "\M-\C-i" 'mvc-status-mode-next-status)
 (define-key mvc-status-mode-map (kbd "M-C-S-i") 'mvc-status-mode-previous-status)
+(define-key mvc-status-mode-map "\M-." 'mvc-status-mode-next-status)
+(define-key mvc-status-mode-map "\M-," 'mvc-status-mode-previous-status)
 
 (define-key mvc-status-mode-map "\C-c?" 'mvc-status-mode-toggle-display-unknown)
 (define-key mvc-status-mode-map "\C-c_" 'mvc-status-mode-toggle-display-unmodified)
@@ -843,8 +845,8 @@
 (define-key mvc-log-mode-map "\C-m" 'mvc-log-mode-return)
 (define-key mvc-log-mode-map "=" 'mvc-log-mode-diff)
 (define-key mvc-log-mode-map "!" 'mvc-log-mode-cheat-sheet)
-(define-key mvc-log-mode-map "\M-\C-i" 'mvc-log-mode-status-mode-next-status)
-(define-key mvc-log-mode-map (kbd "M-C-S-i") 'mvc-log-mode-status-mode-previous-status)
+(define-key mvc-log-mode-map "\M-." 'mvc-log-mode-status-mode-next-status)
+(define-key mvc-log-mode-map "\M-," 'mvc-log-mode-status-mode-previous-status)
 
 
 ;;; mvc-especial-mode-map
