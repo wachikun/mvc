@@ -308,6 +308,10 @@ sub get_git_status($@) {
 	    my $staged_status = $2;
 	    my $working_status = $3;
 	    my $filename = $4;
+	    if ($filename =~ /^".+"$/) {
+		$filename =~ s/^"//;
+		$filename =~ s/"$//;
+	    }
 	    if ($filename =~ />/ or $filename =~ /</) {
 		$staged_status =~ s/R/D/g;
 		$working_status = 'D';
