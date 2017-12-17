@@ -980,6 +980,8 @@
 (define-key mvc-cheat-sheet-mode-map "\M-;" 'mvc-cheat-sheet-mode-comment)
 (define-key mvc-cheat-sheet-mode-map "\M-\C-i" 'mvc-cheat-sheet-mode-next-status)
 (define-key mvc-cheat-sheet-mode-map (kbd "M-C-S-i") 'mvc-cheat-sheet-mode-previous-status)
+(define-key mvc-cheat-sheet-mode-map "\M-." 'mvc-cheat-sheet-mode-next-status)
+(define-key mvc-cheat-sheet-mode-map "\M-," 'mvc-cheat-sheet-mode-previous-status)
 (define-key mvc-cheat-sheet-mode-map "\C-g" 'mvc-cheat-sheet-mode-cancel-process)
 (define-key mvc-cheat-sheet-mode-map "\C-c\C-k" 'mvc-cheat-sheet-mode-cancel-process)
 
