@@ -1,6 +1,6 @@
 ;; mvc.el -- M(eta|ulti|enu) Version Control Interface -*- coding: iso-2022-jp -*-
 
-;; Copyright (C) 2007-2016 Tadashi Watanabe <wac@umiushi.org>
+;; Copyright (C) 2007-2017 Tadashi Watanabe <wac@umiushi.org>
 
 ;; Author: Tadashi Watanabe <wac@umiushi.org>
 ;; Maintainer: Tadashi Watanabe <wac@umiushi.org>
