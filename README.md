@@ -1,15 +1,17 @@
-# mvc.el について
+# About
 
-mvc.el は version 0.1 から mvc という外部コマンドを呼び出すようになりました。複雑な処理を外部コマンドに追い出すことで、従来の mvc.el よりも高速でシンプルなコードになっています。
-
-mvc の実行には Perl が必要です。
-
-
+- smart
+- simple
+- multi VCS support (Git, Mercurial, Subversion and Bazaar)
 
 
-# インストール
 
-`mvc.el` を `~/.emacs.d/init.el` あたりから読み込めるようにしてと書き、 mvc コマンドをパスの通った場所へコピーすれば完了です。
+
+# Install
+
+- Copy `mvc.el` to your load-path
+- Copy `mvc` command to ~/bin
+- Edit init.el
 
 ```lisp
 (require 'mvc)
@@ -18,21 +20,19 @@ mvc の実行には Perl が必要です。
 
 
 
-# 操作例
+# How to use
 
 ## YouTube
 
 [![example](http://img.youtube.com/vi/VGcKGQM3Dlk/0.jpg)](http://www.youtube.com/watch?v=VGcKGQM3Dlk)
 
 
-## 基本操作
+## status
 
 * `M-x mvc-status`
 
 
 ### mvc-status-mode
-
-`mvc.el` の基本的となるモードです。
 
 * `a mvc-status-mode-add`
 
@@ -63,6 +63,10 @@ mvc の実行には Perl が必要です。
 
 ### mvc-cheat-sheet-mode
 
-Git で威力を発揮するチートシートモードです。
+`\C-\C` to run command.
 
-チートシートのように、メモしておいたコマンドをそのまま実行できます。
+```
+git log -n 32 --graph --decorate=full
+git stash list
+git rebase -i HEAD~~~
+```
