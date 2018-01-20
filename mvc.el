@@ -907,6 +907,7 @@
 (define-key mvc-status-mode-map "*D" 'mvc-status-mode-mark-remove)
 (define-key mvc-status-mode-map "*M" 'mvc-status-mode-mark-modified)
 (define-key mvc-status-mode-map "*R" 'mvc-status-mode-mark-path-regexp)
+(define-key mvc-status-mode-map "%m" 'mvc-status-mode-mark-path-regexp)
 
 (define-key mvc-status-mode-map "<" 'mvc-status-mode-pull)
 (define-key mvc-status-mode-map ">" 'mvc-status-mode-push)
