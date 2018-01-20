@@ -69,4 +69,18 @@
 git log -n 32 --graph --decorate=full
 git stash list
 git rebase -i HEAD~~~
+
+
+#@script-eval-begin
+#!/usr/bin/perl -w
+for (my $i = 0; $i < 3; ++$i) { print "DB $i\n"; }
+print "DONE\n";
+#@script-eval-end
+
+
+#@elisp-eval-begin
+(message "A")
+(message "B")
+(message "C")
+#@elisp-eval-end
 ```
