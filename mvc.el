@@ -591,13 +591,15 @@
 	       (cons (const cvs) (repeat (list string string symbol))))
   :group 'mvc-variables)
 
-;; '((vcskey . ("path regexp 0"
-;;              "path regexp 1"
-;;              "path regexp N")))
+;; '("path regexp 0"
+;;   "path regexp 1"
+;;   "path regexp N")
 ;;
 ;; path regexp $B$G;XDj$5$l$?(B path $B$G$O9bB.%b!<%I$G(B status $B%P%C%U%!$r5/F0$7$^$9!#(B
-;; $B%U%!%$%k?t$,B?$$%o!<%-%s%0%3%T!<$r;XDj$7$F$*$/$H(B status $B$NBT$A;~4V$,C;$+$/$J$j$^$9!#(B
-;; $B2<5-%U%i%0$,@)8f$5$l$^$9!#(B
+;; $B%U%!%$%k?t$,B?$$%W%m%8%'%/%H$G(B status $B$NBT$A;~4V$,C;$+$/$J$j$^$9!#(B
+;; 
+;; $B6qBNE*$K$O2<5-%U%i%0$,@)8f$5$l$^$9!#(B
+;; 
 ;;     - mvc-l-status-recursive-p $B$,(B nil
 ;;     - mvc-l-status-strict-p $B$,(B nil
 ;;
@@ -611,21 +613,12 @@
 ;;    - Subversion commit
 ;;
 (defcustom mvc-default-status-fast-regexp-list
-  '((mercurial . nil)
-    (git . ("/gimp/$"
-	    "/krita/$"
-	    "/gcc/$"
-	    "/gecko-dev/$"))
-    (bazaar . nil)
-    (subversion . ("^/tmp/recursive-ignore-test-0/$"
-		   "^~/tmp/svntest/$"))
-    (cvs . nil))
+  '("/gimp/$"
+    "/krita/$"
+    "/gcc/$"
+    "/gecko-dev/$")
   "mvc-default-status-fast-regexp-list"
-  :type '(list (cons (const mercurial) (repeat string))
-	       (cons (const git) (repeat string))
-	       (cons (const bazaar) (repeat string))
-	       (cons (const subversion) (repeat string))
-	       (cons (const cvs) (repeat string)))
+  :type '(repeat string)
   :group 'mvc-variables)
 
 (defcustom mvc-default-cheat-sheet-history
@@ -2609,15 +2602,12 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (set (make-local-variable 'mvc-l-status-strict-p) mvc-mvc-default-status-strict-p)
     (set (make-local-variable 'mvc-l-status-recursive-p) t)
     (catch 'mapc
-      (mapc #'(lambda (a)
-		(when (cdr a)
-		  (mapc #'(lambda (path)
-			    (when (or (string-match path default-directory)
-				      (string-match path (expand-file-name default-directory)))
-			      (setq mvc-l-status-recursive-p nil)
-			      (setq mvc-l-status-strict-p nil)
-			      (throw 'mapc nil)))
-			(cdr a))))
+      (mapc #'(lambda (path)
+		(when (or (string-match path default-directory)
+			  (string-match path (expand-file-name default-directory)))
+		  (setq mvc-l-status-recursive-p nil)
+		  (setq mvc-l-status-strict-p nil)
+		  (throw 'mapc nil)))
 	    mvc-default-status-fast-regexp-list))
     (let ((base (concat "*mvc-"
 			(cdr (assq mvc-l-status-program mvc-program-display-name)))))
