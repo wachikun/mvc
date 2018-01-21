@@ -44,7 +44,7 @@
 
 * `l mvc-status-mode-log`
 
-* `r mvc-status-mode-revert`
+* `r mvc-status-mode-revert` (`git reset HEAD` or `git checkout` (chosen by context))
 
 * `s mvc-status-mode-status`
 
