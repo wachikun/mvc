@@ -612,12 +612,12 @@
 ;;    - Subversion revert
 ;;    - Subversion commit
 ;;
-(defcustom mvc-default-status-fast-regexp-list
+(defcustom mvc-default-status-fast-directory-regexp-list
   '("/gimp/$"
     "/krita/$"
     "/gcc/$"
     "/gecko-dev/$")
-  "mvc-default-status-fast-regexp-list"
+  "mvc-default-status-fast-directory-regexp-list"
   :type '(repeat string)
   :group 'mvc-variables)
 
@@ -2609,7 +2609,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 		  (setq mvc-l-status-recursive-p nil)
 		  (setq mvc-l-status-strict-p nil)
 		  (throw 'mapc nil)))
-	    mvc-default-status-fast-regexp-list))
+	    mvc-default-status-fast-directory-regexp-list))
     (let ((base (concat "*mvc-"
 			(cdr (assq mvc-l-status-program mvc-program-display-name)))))
       (set (make-local-variable 'mvc-l-status-buffer-name-list)

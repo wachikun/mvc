@@ -90,8 +90,8 @@ print "DONE\n";
 
 ### mvc-status is slow!
 
-Add your project path to `mvc-default-status-fast-regexp-list`.
+Add your project path to `mvc-default-status-fast-directory-regexp-list`.
 
 ```
-(add-to-list 'mvc-default-status-fast-regexp-list "/YOUR-PROJECT-PATH/$")
+(add-to-list 'mvc-default-status-fast-directory-regexp-list "/YOUR-PROJECT-PATH/$")
 ```
