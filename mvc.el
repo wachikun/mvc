@@ -1179,6 +1179,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 			    (set-buffer (get-buffer-create buffer))
 			    (setq default-directory initial-directory)
 			    (setq mvc-status-buffer-list (cons (current-buffer) mvc-status-buffer-list))
+			    (setq buffer-read-only t)
 			    (mvc-async-status program)))
 			(unless first-buffer
 			  (setq first-buffer (current-buffer))))
@@ -2284,7 +2285,6 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
 (defun mvc-async-status-lambda ()
   (lambda (status-buffer)
-    (setq buffer-read-only nil)
     (goto-char (point-min))
     (re-search-forward "version:\\(.+\\)")
     (let ((version (match-string 1)))
@@ -2345,8 +2345,6 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 	    (setq mvc-l-status-branch-name (mvc-status-mode-get-branch-name))
 	    (setq mvc-l-status-timer-last-mode-line-string "")
 	    (mvc-status-update-header-line)))))
-    ;; read only $B$K$7$?8e!"IA2h$7$F$*$7$^$$!#(B
-    (setq buffer-read-only t)
     (with-current-buffer status-buffer
       (mvc-status-draw-with-save-load-point)
       (message "%s status ...done" mvc-l-status-program-name))))
