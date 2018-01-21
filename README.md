@@ -84,3 +84,14 @@ print "DONE\n";
 (message "C")
 #@elisp-eval-end
 ```
+
+
+## FAQ
+
+### mvc-status is slow!
+
+Add your project path to `mvc-default-status-fast-regexp-list`.
+
+```
+(add-to-list 'mvc-default-status-fast-regexp-list "/YOUR-PROJECT-PATH/$")
+```
