@@ -621,6 +621,76 @@
   :type '(repeat string)
   :group 'mvc-variables)
 
+;; 
+;; status-display-* $B$O2<5-$N=gHV$GI>2A$5$l$k(B
+;; 
+;; 1. $B%0%m!<%P%k$J(B nil or t          mvc-default-status-display-*
+;; 2. $B%G%#%l%/%H%j$,%^%C%A$9$l$P(B nil mvc-default-status-display-*-nil-directory-regexp-list
+;; 3. $B%G%#%l%/%H%j$,%^%C%A$9$l$P(B t   mvc-default-status-display-*-t-directory-regexp-list
+;;
+;; $B>iD9$@$,!";XDj%G%#%l%/%H%j$r(B add-to-list $B$9$k$@$1$G;H$($k!#(B
+;; mvc-default-diff-option-list $B$N$h$&$JJ#;($J9=B$$@$H!"%=!<%9$O%7%s%W%k$K$J$k$,@_Dj%U%!%$%k$K=q$/$K$OLLE]!#(B
+;; 
+(defcustom mvc-default-status-display-unknown-nil-directory-regexp-list
+  nil
+  "mvc-default-status-display-unknown-nil-directory-regexp-list"
+  :type '(repeat string)
+  :group 'mvc-variables)
+
+(defcustom mvc-default-status-display-unknown-t-directory-regexp-list
+  nil
+  "mvc-default-status-display-unknown-t-directory-regexp-list"
+  :type '(repeat string)
+  :group 'mvc-variables)
+
+(defcustom mvc-default-status-display-unmodified-nil-directory-regexp-list
+  nil
+  "mvc-default-status-display-unmodified-nil-directory-regexp-list"
+  :type '(repeat string)
+  :group 'mvc-variables)
+
+(defcustom mvc-default-status-display-unmodified-t-directory-regexp-list
+  nil
+  "mvc-default-status-display-unmodified-t-directory-regexp-list"
+  :type '(repeat string)
+  :group 'mvc-variables)
+
+(defcustom mvc-default-status-display-backup-nil-directory-regexp-list
+  nil
+  "mvc-default-status-display-backup-nil-directory-regexp-list"
+  :type '(repeat string)
+  :group 'mvc-variables)
+
+(defcustom mvc-default-status-display-backup-t-directory-regexp-list
+  nil
+  "mvc-default-status-display-backup-t-directory-regexp-list"
+  :type '(repeat string)
+  :group 'mvc-variables)
+
+(defcustom mvc-default-status-display-ignore-nil-directory-regexp-list
+  nil
+  "mvc-default-status-display-ignore-nil-directory-regexp-list"
+  :type '(repeat string)
+  :group 'mvc-variables)
+
+(defcustom mvc-default-status-display-ignore-t-directory-regexp-list
+  nil
+  "mvc-default-status-display-ignore-t-directory-regexp-list"
+  :type '(repeat string)
+  :group 'mvc-variables)
+
+(defcustom mvc-default-status-display-delete-nil-directory-regexp-list
+  nil
+  "mvc-default-status-display-delete-nil-directory-regexp-list"
+  :type '(repeat string)
+  :group 'mvc-variables)
+
+(defcustom mvc-default-status-display-delete-t-directory-regexp-list
+  nil
+  "mvc-default-status-display-delete-t-directory-regexp-list"
+  :type '(repeat string)
+  :group 'mvc-variables)
+
 (defcustom mvc-default-cheat-sheet-history
   '((mercurial . ("%mvc branches"
 		  "%mvc glog --limit=10"
@@ -2587,6 +2657,15 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
       (kill-buffer (current-buffer)))
     branch))
 
+(defmacro mvc-status-mode-display-setting (flag-p value directory-regexp-list)
+  `(catch 'mapc
+     (mapc #'(lambda (path)
+	       (when (or (string-match path default-directory)
+			 (string-match path (expand-file-name default-directory)))
+		 (setq ,flag-p ,value)
+		 (throw 'mapc nil)))
+	   ,directory-regexp-list)))
+
 (defun mvc-status-mode (initial-program)
   "M(enu|ulti) Version Control Interface"
 
@@ -2667,6 +2746,37 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (make-local-variable 'mvc-l-status-display-ignore-masks)
     (set (make-local-variable 'mvc-l-status-display-delete-p) mvc-default-status-display-delete)
     (make-local-variable 'mvc-l-status-display-delete-masks)
+
+    (mvc-status-mode-display-setting mvc-l-status-display-unknown-p
+				     nil
+				     mvc-default-status-display-unknown-nil-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-display-unknown-p
+				     t
+				     mvc-default-status-display-unknown-t-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-display-unmodified-p
+				     nil
+				     mvc-default-status-display-unmodified-nil-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-display-unmodified-p
+				     t
+				     mvc-default-status-display-unmodified-t-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-display-backup-p
+				     nil
+				     mvc-default-status-display-backup-nil-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-display-backup-p
+				     t
+				     mvc-default-status-display-backup-t-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-display-ignore-p
+				     nil
+				     mvc-default-status-display-ignore-nil-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-display-ignore-p
+				     t
+				     mvc-default-status-display-ignore-t-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-display-delete-p
+				     nil
+				     mvc-default-status-display-delete-nil-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-display-delete-p
+				     t
+				     mvc-default-status-display-delete-t-directory-regexp-list)
 
     (set (make-local-variable 'mvc-l-status-file-list-begin-point) (point-min))
     (set (make-local-variable 'mvc-l-status-file-list-end-point) (point-max))
