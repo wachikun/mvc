@@ -44,24 +44,24 @@
   "mvc faces"
   :group 'mvc)
 
-(defcustom mvc-default-status-display-unknown t
-  "mvc-default-status-display-unknown"
+(defcustom mvc-default-status-mask-unknown-p nil
+  "mvc-default-status-mask-unknown-p"
   :type 'boolean
   :group 'mvc-variables)
-(defcustom mvc-default-status-display-unmodified t
-  "mvc-default-status-display-unmodified"
+(defcustom mvc-default-status-mask-unmodified-p nil
+  "mvc-default-status-mask-unmodified-p"
   :type 'boolean
   :group 'mvc-variables)
-(defcustom mvc-default-status-display-backup nil
-  "mvc-default-status-display-backup"
+(defcustom mvc-default-status-mask-backup-p t
+  "mvc-default-status-mask-backup-p"
   :type 'boolean
   :group 'mvc-variables)
-(defcustom mvc-default-status-display-ignore nil
-  "mvc-default-status-display-ignore"
+(defcustom mvc-default-status-mask-ignore-p t
+  "mvc-default-status-mask-ignore-p"
   :type 'boolean
   :group 'mvc-variables)
-(defcustom mvc-default-status-display-delete t
-  "mvc-default-status-display-delete"
+(defcustom mvc-default-status-mask-delete-p nil
+  "mvc-default-status-mask-delete-p"
   :type 'boolean
   :group 'mvc-variables)
 
@@ -622,72 +622,72 @@
   :group 'mvc-variables)
 
 ;; 
-;; status-display-* $B$O2<5-$N=gHV$GI>2A$5$l$k(B
+;; status-mask-* $B$O2<5-$N=gHV$GI>2A$5$l$k(B
 ;; 
-;; 1. $B%0%m!<%P%k$J(B nil or t          mvc-default-status-display-*
-;; 2. $B%G%#%l%/%H%j$,%^%C%A$9$l$P(B nil mvc-default-status-display-*-nil-directory-regexp-list
-;; 3. $B%G%#%l%/%H%j$,%^%C%A$9$l$P(B t   mvc-default-status-display-*-t-directory-regexp-list
+;; 1. $B%0%m!<%P%k$J(B nil or t          mvc-default-status-mask-p-*
+;; 2. $B%G%#%l%/%H%j$,%^%C%A$9$l$P(B nil mvc-default-status-mask-p-*-nil-directory-regexp-list
+;; 3. $B%G%#%l%/%H%j$,%^%C%A$9$l$P(B t   mvc-default-status-mask-p-*-t-directory-regexp-list
 ;;
 ;; $B>iD9$@$,!";XDj%G%#%l%/%H%j$r(B add-to-list $B$9$k$@$1$G;H$($k!#(B
 ;; mvc-default-diff-option-list $B$N$h$&$JJ#;($J9=B$$@$H!"%=!<%9$O%7%s%W%k$K$J$k$,@_Dj%U%!%$%k$K=q$/$K$OLLE]!#(B
 ;; 
-(defcustom mvc-default-status-display-unknown-nil-directory-regexp-list
+(defcustom mvc-default-status-mask-unknown-p-nil-directory-regexp-list
   nil
-  "mvc-default-status-display-unknown-nil-directory-regexp-list"
+  "mvc-default-status-mask-unknown-p-nil-directory-regexp-list"
   :type '(repeat string)
   :group 'mvc-variables)
 
-(defcustom mvc-default-status-display-unknown-t-directory-regexp-list
+(defcustom mvc-default-status-mask-unknown-p-t-directory-regexp-list
   nil
-  "mvc-default-status-display-unknown-t-directory-regexp-list"
+  "mvc-default-status-mask-unknown-p-t-directory-regexp-list"
   :type '(repeat string)
   :group 'mvc-variables)
 
-(defcustom mvc-default-status-display-unmodified-nil-directory-regexp-list
+(defcustom mvc-default-status-mask-unmodified-p-nil-directory-regexp-list
   nil
-  "mvc-default-status-display-unmodified-nil-directory-regexp-list"
+  "mvc-default-status-mask-unmodified-p-nil-directory-regexp-list"
   :type '(repeat string)
   :group 'mvc-variables)
 
-(defcustom mvc-default-status-display-unmodified-t-directory-regexp-list
+(defcustom mvc-default-status-mask-unmodified-p-t-directory-regexp-list
   nil
-  "mvc-default-status-display-unmodified-t-directory-regexp-list"
+  "mvc-default-status-mask-unmodified-p-t-directory-regexp-list"
   :type '(repeat string)
   :group 'mvc-variables)
 
-(defcustom mvc-default-status-display-backup-nil-directory-regexp-list
+(defcustom mvc-default-status-mask-backup-p-nil-directory-regexp-list
   nil
-  "mvc-default-status-display-backup-nil-directory-regexp-list"
+  "mvc-default-status-mask-backup-p-nil-directory-regexp-list"
   :type '(repeat string)
   :group 'mvc-variables)
 
-(defcustom mvc-default-status-display-backup-t-directory-regexp-list
+(defcustom mvc-default-status-mask-backup-p-t-directory-regexp-list
   nil
-  "mvc-default-status-display-backup-t-directory-regexp-list"
+  "mvc-default-status-mask-backup-p-t-directory-regexp-list"
   :type '(repeat string)
   :group 'mvc-variables)
 
-(defcustom mvc-default-status-display-ignore-nil-directory-regexp-list
+(defcustom mvc-default-status-mask-ignore-p-nil-directory-regexp-list
   nil
-  "mvc-default-status-display-ignore-nil-directory-regexp-list"
+  "mvc-default-status-mask-ignore-p-nil-directory-regexp-list"
   :type '(repeat string)
   :group 'mvc-variables)
 
-(defcustom mvc-default-status-display-ignore-t-directory-regexp-list
+(defcustom mvc-default-status-mask-ignore-p-t-directory-regexp-list
   nil
-  "mvc-default-status-display-ignore-t-directory-regexp-list"
+  "mvc-default-status-mask-ignore-p-t-directory-regexp-list"
   :type '(repeat string)
   :group 'mvc-variables)
 
-(defcustom mvc-default-status-display-delete-nil-directory-regexp-list
+(defcustom mvc-default-status-mask-delete-p-nil-directory-regexp-list
   nil
-  "mvc-default-status-display-delete-nil-directory-regexp-list"
+  "mvc-default-status-mask-delete-p-nil-directory-regexp-list"
   :type '(repeat string)
   :group 'mvc-variables)
 
-(defcustom mvc-default-status-display-delete-t-directory-regexp-list
+(defcustom mvc-default-status-mask-delete-p-t-directory-regexp-list
   nil
-  "mvc-default-status-display-delete-t-directory-regexp-list"
+  "mvc-default-status-mask-delete-p-t-directory-regexp-list"
   :type '(repeat string)
   :group 'mvc-variables)
 
@@ -1571,49 +1571,49 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (maphash #'(lambda (key value)
 		 (let ((flag t) (mark (gethash key mvc-l-status-mark-hash)))
 		   (unless (string= mark "*")
-		     (cond ((and (not mvc-l-status-display-unknown-p)
+		     (cond ((and mvc-l-status-mask-unknown-p
 				 (string= value "?"))
-			    (setq mvc-l-status-display-unknown-masks (1+ mvc-l-status-display-unknown-masks))
+			    (setq mvc-l-status-mask-unknown-masks (1+ mvc-l-status-mask-unknown-masks))
 			    (setq flag nil))
-			   ((and (not mvc-l-status-display-ignore-p)
+			   ((and mvc-l-status-mask-ignore-p
 				 (string= value "I"))
-			    (setq mvc-l-status-display-ignore-masks (1+ mvc-l-status-display-ignore-masks))
+			    (setq mvc-l-status-mask-ignore-masks (1+ mvc-l-status-mask-ignore-masks))
 			    (setq flag nil))
-			   ((and (not mvc-l-status-display-delete-p)
+			   ((and mvc-l-status-mask-delete-p
 				 (string= value "D"))
-			    (setq mvc-l-status-display-delete-masks (1+ mvc-l-status-display-delete-masks))
+			    (setq mvc-l-status-mask-delete-masks (1+ mvc-l-status-mask-delete-masks))
 			    (setq flag nil))
-			   ((and (not mvc-l-status-display-unmodified-p)
+			   ((and mvc-l-status-mask-unmodified-p
 				 (not (stringp (gethash (concat expanded-dir (substring key 2)) mvc-l-status-after-save-hook-hash)))
 				 (not (and (string= (gethash key mvc-l-status-type-hash) "d")
 					   (string= (substring key 2) ".")))
 				 (string= value " "))
-			    (setq mvc-l-status-display-unmodified-masks (1+ mvc-l-status-display-unmodified-masks))
+			    (setq mvc-l-status-mask-unmodified-masks (1+ mvc-l-status-mask-unmodified-masks))
 			    (setq flag nil))))
-		   (when (and (not mvc-l-status-display-backup-p)
+		   (when (and mvc-l-status-mask-backup-p
 			      (mvc-backup-file-p key)
 			      (string= value "?")
 			      (not (string= mark "*")))
-		     (setq mvc-l-status-display-backup-masks (1+ mvc-l-status-display-backup-masks))
+		     (setq mvc-l-status-mask-backup-masks (1+ mvc-l-status-mask-backup-masks))
 		     (setq flag nil))
 		   (when (and (string= "d" (gethash key mvc-l-status-type-hash))
-			      (not mvc-l-status-display-unmodified-p)
+			      mvc-l-status-mask-unmodified-p
 			      (not (string= mark "*"))
 			      (not (string= "  ." key)))
 		     (let ((information (gethash key mvc-l-status-information-hash)))
 		       (when (= (cdr (assq 'tracked information)) 0)
 			 (setq flag nil))
-		       (when (and mvc-l-status-display-unknown-p
+		       (when (and (not mvc-l-status-mask-unknown-p)
 				  (>= (- (cdr (assq 'untracked information)) (cdr (assq '~ information))) 1))
 			 (setq flag t))
-		       (when (and mvc-l-status-display-backup-p
-				  mvc-l-status-display-unknown-p
+		       (when (and (not mvc-l-status-mask-backup-p)
+				  (not mvc-l-status-mask-unknown-p)
 				  (>= (cdr (assq '~ information)) 1))
 			 (setq flag t))
-		       (when (and mvc-l-status-display-ignore-p
+		       (when (and (not mvc-l-status-mask-ignore-p)
 				  (>= (cdr (assq 'I information)) 1))
 			 (setq flag t))
-		       (when (and mvc-l-status-display-delete-p
+		       (when (and (not mvc-l-status-mask-delete-p)
 				  (>= (cdr (assq 'D information)) 1))
 			 (setq flag t))
 		       (when (>= (cdr (assq '! information)) 1)
@@ -1665,25 +1665,25 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
   (mvc-insert-with-face "mask file(s):"
 			'mvc-face-status-footer)
-  (mvc-insert-with-face (if mvc-l-status-display-unknown-p
+  (mvc-insert-with-face (if (not mvc-l-status-mask-unknown-p)
 			    "?=show all   "
-			  (format "?=HIDE %-5d " mvc-l-status-display-unknown-masks))
+			  (format "?=HIDE %-5d " mvc-l-status-mask-unknown-masks))
 			'mvc-face-status-footer)
-  (mvc-insert-with-face (if mvc-l-status-display-unmodified-p
+  (mvc-insert-with-face (if (not mvc-l-status-mask-unmodified-p)
 			    "C=show all   "
-			  (format "C=HIDE %-5d " mvc-l-status-display-unmodified-masks))
+			  (format "C=HIDE %-5d " mvc-l-status-mask-unmodified-masks))
 			'mvc-face-status-footer)
-  (mvc-insert-with-face (if mvc-l-status-display-backup-p
+  (mvc-insert-with-face (if (not mvc-l-status-mask-backup-p)
 			    "~#=show all   "
-			  (format "~#=HIDE %-5d " mvc-l-status-display-backup-masks))
+			  (format "~#=HIDE %-5d " mvc-l-status-mask-backup-masks))
 			'mvc-face-status-footer)
-  (mvc-insert-with-face (if mvc-l-status-display-ignore-p
+  (mvc-insert-with-face (if (not mvc-l-status-mask-ignore-p)
 			    "I=show all   "
-			  (format "I=HIDE %-5d " mvc-l-status-display-ignore-masks))
+			  (format "I=HIDE %-5d " mvc-l-status-mask-ignore-masks))
 			'mvc-face-status-footer)
-  (mvc-insert-with-face (if mvc-l-status-display-delete-p
+  (mvc-insert-with-face (if (not mvc-l-status-mask-delete-p)
 			    "D=show all   "
-			  (format "D=HIDE %-5d " mvc-l-status-display-delete-masks))
+			  (format "D=HIDE %-5d " mvc-l-status-mask-delete-masks))
 			'mvc-face-status-footer)
   (mvc-insert-with-face "\n"
 			'mvc-face-status-footer)
@@ -1732,32 +1732,32 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (mvc-insert-with-face " \n"
 			  'mvc-face-status-footer)
 
-    (mvc-status-insert-toggle-button (not mvc-l-status-display-unknown-p)
+    (mvc-status-insert-toggle-button mvc-l-status-mask-unknown-p
 				     "unknown mask enabled (\\C-c?)"
 				     "unknown mask disabled(\\C-c?)"
 				     'mvc-status-mode-toggle-display-unknown)
     (mvc-insert-with-face " "
 			  'mvc-face-status-footer)
-    (mvc-status-insert-toggle-button (not mvc-l-status-display-unmodified-p)
+    (mvc-status-insert-toggle-button mvc-l-status-mask-unmodified-p
 				     "unmodified mask enabled (\\C-c_)"
 				     "unmodified mask disabled(\\C-c_)"
 				     'mvc-status-mode-toggle-display-unmodified)
     (mvc-insert-with-face " \n"
 			  'mvc-face-status-footer)
 
-    (mvc-status-insert-toggle-button (not mvc-l-status-display-backup-p)
+    (mvc-status-insert-toggle-button mvc-l-status-mask-backup-p
 				     " backup mask enabled (\\C-c~)"
 				     " backup mask disabled(\\C-c~)"
 				     'mvc-status-mode-toggle-display-backup)
     (mvc-insert-with-face " "
 			  'mvc-face-status-footer)
-    (mvc-status-insert-toggle-button (not mvc-l-status-display-ignore-p)
+    (mvc-status-insert-toggle-button mvc-l-status-mask-ignore-p
 				     "    ignore mask enabled (\\C-ci)"
 				     "    ignore mask disabled(\\C-ci)"
 				     'mvc-status-mode-toggle-display-ignore)
     (mvc-insert-with-face " "
 			  'mvc-face-status-footer)
-    (mvc-status-insert-toggle-button (not mvc-l-status-display-delete-p)
+    (mvc-status-insert-toggle-button mvc-l-status-mask-delete-p
 				     "    delete mask enabled "
 				     "    delete mask disabled"
 				     'mvc-status-mode-toggle-display-delete)
@@ -1829,11 +1829,11 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 (defun mvc-status-draw ()
   (setq mvc-l-status-ready-p nil)
 
-  (setq mvc-l-status-display-unknown-masks 0)
-  (setq mvc-l-status-display-unmodified-masks 0)
-  (setq mvc-l-status-display-backup-masks 0)
-  (setq mvc-l-status-display-ignore-masks 0)
-  (setq mvc-l-status-display-delete-masks 0)
+  (setq mvc-l-status-mask-unknown-masks 0)
+  (setq mvc-l-status-mask-unmodified-masks 0)
+  (setq mvc-l-status-mask-backup-masks 0)
+  (setq mvc-l-status-mask-ignore-masks 0)
+  (setq mvc-l-status-mask-delete-masks 0)
 
   (setq buffer-read-only nil)
   (goto-char (point-min))
@@ -2736,47 +2736,47 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (make-local-variable 'mvc-l-status-save-load-file-list-end-point)
     (make-local-variable 'mvc-l-status-save-load-buffer-list)
     (make-local-variable 'mvc-l-status-files)
-    (set (make-local-variable 'mvc-l-status-display-unknown-p) mvc-default-status-display-unknown)
-    (make-local-variable 'mvc-l-status-display-unknown-masks)
-    (set (make-local-variable 'mvc-l-status-display-unmodified-p) mvc-default-status-display-unmodified)
-    (make-local-variable 'mvc-l-status-display-unmodified-masks)
-    (set (make-local-variable 'mvc-l-status-display-backup-p) mvc-default-status-display-backup)
-    (make-local-variable 'mvc-l-status-display-backup-masks)
-    (set (make-local-variable 'mvc-l-status-display-ignore-p) mvc-default-status-display-ignore)
-    (make-local-variable 'mvc-l-status-display-ignore-masks)
-    (set (make-local-variable 'mvc-l-status-display-delete-p) mvc-default-status-display-delete)
-    (make-local-variable 'mvc-l-status-display-delete-masks)
+    (set (make-local-variable 'mvc-l-status-mask-unknown-p) mvc-default-status-mask-unknown-p)
+    (make-local-variable 'mvc-l-status-mask-unknown-masks)
+    (set (make-local-variable 'mvc-l-status-mask-unmodified-p) mvc-default-status-mask-unmodified-p)
+    (make-local-variable 'mvc-l-status-mask-unmodified-masks)
+    (set (make-local-variable 'mvc-l-status-mask-backup-p) mvc-default-status-mask-backup-p)
+    (make-local-variable 'mvc-l-status-mask-backup-masks)
+    (set (make-local-variable 'mvc-l-status-mask-ignore-p) mvc-default-status-mask-ignore-p)
+    (make-local-variable 'mvc-l-status-mask-ignore-masks)
+    (set (make-local-variable 'mvc-l-status-mask-delete-p) mvc-default-status-mask-delete-p)
+    (make-local-variable 'mvc-l-status-mask-delete-masks)
 
-    (mvc-status-mode-display-setting mvc-l-status-display-unknown-p
+    (mvc-status-mode-display-setting mvc-l-status-mask-unknown-p
 				     nil
-				     mvc-default-status-display-unknown-nil-directory-regexp-list)
-    (mvc-status-mode-display-setting mvc-l-status-display-unknown-p
+				     mvc-default-status-mask-unknown-p-nil-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-mask-unknown-p
 				     t
-				     mvc-default-status-display-unknown-t-directory-regexp-list)
-    (mvc-status-mode-display-setting mvc-l-status-display-unmodified-p
+				     mvc-default-status-mask-unknown-p-t-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-mask-unmodified-p
 				     nil
-				     mvc-default-status-display-unmodified-nil-directory-regexp-list)
-    (mvc-status-mode-display-setting mvc-l-status-display-unmodified-p
+				     mvc-default-status-mask-unmodified-p-nil-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-mask-unmodified-p
 				     t
-				     mvc-default-status-display-unmodified-t-directory-regexp-list)
-    (mvc-status-mode-display-setting mvc-l-status-display-backup-p
+				     mvc-default-status-mask-unmodified-p-t-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-mask-backup-p
 				     nil
-				     mvc-default-status-display-backup-nil-directory-regexp-list)
-    (mvc-status-mode-display-setting mvc-l-status-display-backup-p
+				     mvc-default-status-mask-backup-p-nil-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-mask-backup-p
 				     t
-				     mvc-default-status-display-backup-t-directory-regexp-list)
-    (mvc-status-mode-display-setting mvc-l-status-display-ignore-p
+				     mvc-default-status-mask-backup-p-t-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-mask-ignore-p
 				     nil
-				     mvc-default-status-display-ignore-nil-directory-regexp-list)
-    (mvc-status-mode-display-setting mvc-l-status-display-ignore-p
+				     mvc-default-status-mask-ignore-p-nil-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-mask-ignore-p
 				     t
-				     mvc-default-status-display-ignore-t-directory-regexp-list)
-    (mvc-status-mode-display-setting mvc-l-status-display-delete-p
+				     mvc-default-status-mask-ignore-p-t-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-mask-delete-p
 				     nil
-				     mvc-default-status-display-delete-nil-directory-regexp-list)
-    (mvc-status-mode-display-setting mvc-l-status-display-delete-p
+				     mvc-default-status-mask-delete-p-nil-directory-regexp-list)
+    (mvc-status-mode-display-setting mvc-l-status-mask-delete-p
 				     t
-				     mvc-default-status-display-delete-t-directory-regexp-list)
+				     mvc-default-status-mask-delete-p-t-directory-regexp-list)
 
     (set (make-local-variable 'mvc-l-status-file-list-begin-point) (point-min))
     (set (make-local-variable 'mvc-l-status-file-list-end-point) (point-max))
@@ -2937,7 +2937,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
   (if (mvc-status-async-p)
       (message mvc-message-process-already-running)
-    (setq mvc-l-status-display-unknown-p (not mvc-l-status-display-unknown-p))
+    (setq mvc-l-status-mask-unknown-p (not mvc-l-status-mask-unknown-p))
 
     (mvc-status-draw-with-save-load-point)))
 
@@ -2947,7 +2947,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
   (if (mvc-status-async-p)
       (message mvc-message-process-already-running)
-    (setq mvc-l-status-display-unmodified-p (not mvc-l-status-display-unmodified-p))
+    (setq mvc-l-status-mask-unmodified-p (not mvc-l-status-mask-unmodified-p))
 
     (mvc-status-draw-with-save-load-point)))
 
@@ -2957,7 +2957,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
   (if (mvc-status-async-p)
       (message mvc-message-process-already-running)
-    (setq mvc-l-status-display-backup-p (not mvc-l-status-display-backup-p))
+    (setq mvc-l-status-mask-backup-p (not mvc-l-status-mask-backup-p))
 
     (mvc-status-draw-with-save-load-point)))
 
@@ -2967,7 +2967,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
   (if (mvc-status-async-p)
       (message mvc-message-process-already-running)
-    (setq mvc-l-status-display-ignore-p (not mvc-l-status-display-ignore-p))
+    (setq mvc-l-status-mask-ignore-p (not mvc-l-status-mask-ignore-p))
 
     (mvc-status-draw-with-save-load-point)))
 
@@ -2977,7 +2977,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
 
   (if (mvc-status-async-p)
       (message mvc-message-process-already-running)
-    (setq mvc-l-status-display-delete-p (not mvc-l-status-display-delete-p))
+    (setq mvc-l-status-mask-delete-p (not mvc-l-status-mask-delete-p))
 
     (mvc-status-draw-with-save-load-point)))
 
@@ -3076,7 +3076,7 @@ mvc-default-program-search-concurrent $B$,(B nil $B$J$i$P:G=i$N(B 1 $B$D$,8
     (maphash #'(lambda (key value)
 		 (when (string= (gethash key mvc-l-status-code-hash) "?")
 		   (unless (string= value "*")
-		     (when (not (and (not mvc-l-status-display-backup-p)
+		     (when (not (and mvc-l-status-mask-backup-p
 				     (mvc-backup-file-p key)))
 		       (setq mvc-l-status-marks (1+ mvc-l-status-marks))
 		       (puthash key "*" mvc-l-status-mark-hash)))))
